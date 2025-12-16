@@ -12,7 +12,7 @@
 | 08  | Random Bag Generator   | X      |
 | 09  | Spawn Piece            | X      |
 | 10  | Gravity Fall           | X      |
-| 11  | Collision & Lock Delay |        |
+| 11  | Collision & Lock Delay | X      |
 | 12  | Desktop Controls       |        |
 | 13  | Rotation (SRS)         |        |
 | 14  | Line Clear             |        |
