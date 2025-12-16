@@ -61,12 +61,24 @@ export enum GameStatus {
 export interface GameState {
   /** Playfield matrix */
   matrix: Matrix;
+  /** Playfield matrix (alias for compatibility) */
+  playfield: number[][];
   /** Currently active piece (null if none) */
   activePiece: Piece | null;
+  /** Currently active piece (alias for compatibility) */
+  currentPiece: {
+    type: TetrominoType;
+    rotation: number;
+    position: { x: number; y: number };
+  };
   /** Current score */
   score: number;
   /** Current level */
   level: number;
+  /** Total lines cleared */
+  linesCleared: number;
   /** Game status */
   status: GameStatus;
+  /** Whether the game is over */
+  isGameOver: boolean;
 }
