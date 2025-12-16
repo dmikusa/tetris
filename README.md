@@ -43,6 +43,17 @@ The primary rule for the challenge was to not write any code, and instead have t
 
    After building, you can preview the production build locally.
 
+## Deployment
+
+The production build outputs static files to the `dist/` directory that can be deployed to any static file hosting service.
+
+### Browser Compatibility
+
+- Chrome/Edge (latest)
+- Firefox (latest)
+- Safari (latest)
+- Requires modern ES6+ support and Canvas API
+
 ## Project Structure
 
 - `src/` - Source code for the game
