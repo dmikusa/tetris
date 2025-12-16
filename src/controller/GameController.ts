@@ -136,7 +136,7 @@ export class GameController {
     }
 
     // Move is valid, update position
-    this.state.activePiece.position.y--;
+    this.state.activePiece.position.y++;
 
     // Reset lock delay if piece was on ground and moved down (step reset)
     if (this.lockDelaySystem.isLockDelayActive()) {
