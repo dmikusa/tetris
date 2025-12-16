@@ -13,9 +13,9 @@
 | 09  | Spawn Piece            | X      |
 | 10  | Gravity Fall           | X      |
 | 11  | Collision & Lock Delay | X      |
-| 12  | Desktop Controls       |        |
-| 13  | Rotation (SRS)         |        |
-| 14  | Line Clear             |        |
+| 12  | Desktop Controls       | X      |
+| 13  | Rotation (SRS)         | X      |
+| 14  | Line Clear             | X      |
 | 15  | Scoring & Levels       |        |
 | 16  | Colors & Rendering     |        |
 | 17  | Next Queue             |        |
