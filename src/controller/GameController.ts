@@ -5,6 +5,7 @@ import { FIELD_WIDTH, FIELD_TOTAL_HEIGHT } from '../model/constants';
 import { GravitySystem } from './GravitySystem';
 import { CollisionDetector } from './CollisionDetector';
 import { LockDelaySystem } from './LockDelaySystem';
+import { RotationSystem } from './RotationSystem';
 
 /**
  * Spawn positions for each tetromino type
@@ -30,6 +31,7 @@ export class GameController {
   private gravitySystem: GravitySystem;
   private collisionDetector: CollisionDetector;
   private lockDelaySystem: LockDelaySystem;
+  private rotationSystem: RotationSystem;
 
   /**
    * Creates a new game controller
@@ -41,6 +43,7 @@ export class GameController {
     this.collisionDetector = new CollisionDetector();
     this.lockDelaySystem = new LockDelaySystem(() => this.lockPiece());
     this.gravitySystem = new GravitySystem(this.state.level, () => this.moveDown());
+    this.rotationSystem = new RotationSystem();
   }
 
   /**
@@ -244,6 +247,59 @@ export class GameController {
   }
 
   /**
+   * Rotates the active piece clockwise
+   * @returns true if rotation succeeded, false if blocked
+   */
+  rotateClockwise(): boolean {
+    if (!this.state.activePiece || this.state.status !== GameStatus.Playing) {
+      return false;
+    }
+
+    const result = this.rotationSystem.rotateClockwise(this.state.activePiece, this.state.matrix);
+
+    if (result.success && result.piece) {
+      this.state.activePiece = result.piece;
+
+      // Reset lock delay on successful rotation (move reset mode)
+      if (this.lockDelaySystem.isLockDelayActive()) {
+        this.lockDelaySystem.reset(false);
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Rotates the active piece counterclockwise
+   * @returns true if rotation succeeded, false if blocked
+   */
+  rotateCounterclockwise(): boolean {
+    if (!this.state.activePiece || this.state.status !== GameStatus.Playing) {
+      return false;
+    }
+
+    const result = this.rotationSystem.rotateCounterclockwise(
+      this.state.activePiece,
+      this.state.matrix
+    );
+
+    if (result.success && result.piece) {
+      this.state.activePiece = result.piece;
+
+      // Reset lock delay on successful rotation (move reset mode)
+      if (this.lockDelaySystem.isLockDelayActive()) {
+        this.lockDelaySystem.reset(false);
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
    * Locks the active piece into the playfield matrix
    */
   /**
@@ -348,5 +404,12 @@ export class GameController {
    */
   getLockDelaySystem(): LockDelaySystem {
     return this.lockDelaySystem;
+  }
+
+  /**
+   * Gets the rotation system instance
+   */
+  getRotationSystem(): RotationSystem {
+    return this.rotationSystem;
   }
 }

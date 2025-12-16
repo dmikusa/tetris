@@ -54,6 +54,8 @@ export class GameScene extends Phaser.Scene {
       onSoftDropStart: () => this.gameController.softDropStart(),
       onSoftDropEnd: () => this.gameController.softDropEnd(),
       onHardDrop: () => this.gameController.hardDrop(),
+      onRotateClockwise: () => this.gameController.rotateClockwise(),
+      onRotateCounterclockwise: () => this.gameController.rotateCounterclockwise(),
     });
 
     // Start input handling
