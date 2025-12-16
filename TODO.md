@@ -23,7 +23,7 @@
 | 19  | Ghost Piece            |        |
 | 20  | Top-Out Rules          |        |
 | 21  | Mobile Controls        |        |
-| 22  | Logo & Branding        |        |
+| 22  | Logo & Branding        | IP     |
 | 23  | Responsive Layout      |        |
 | 24  | Docs & README          |        |
 | 25  | Type-Check Strict      |        |

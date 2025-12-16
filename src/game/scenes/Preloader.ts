@@ -23,11 +23,11 @@ export class Preloader extends Scene {
   }
 
   preload() {
-    //  Load the assets for the game - Replace with your own assets
+    //  Load the assets for the game
     this.load.setPath('assets');
 
-    this.load.image('logo', 'logo.png');
-    this.load.image('star', 'star.png');
+    this.load.image('menu-background', '7signal_blocks_start_1024x768.jpg');
+    this.load.image('game-background', 'futuristic_arcade_eyeris_blank_1024x768.jpg');
   }
 
   create() {
