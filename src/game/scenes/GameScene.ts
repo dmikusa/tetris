@@ -45,8 +45,8 @@ export class GameScene extends Phaser.Scene {
     // Calculate playfield position to center it
     const playfieldWidth = FIELD_WIDTH * CELL_SIZE;
     const playfieldHeight = FIELD_VISIBLE_HEIGHT * CELL_SIZE;
-    const startX = (this.cameras.main.width - playfieldWidth) / 2;
-    const startY = (this.cameras.main.height - playfieldHeight) / 2;
+    const startX = (this.cameras.main.width - playfieldWidth) / 2 - 5;
+    const startY = (this.cameras.main.height - playfieldHeight) / 2 - 60;
 
     // Create container for the playfield
     this.playfieldContainer = this.add.container(startX, startY);
