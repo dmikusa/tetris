@@ -10,7 +10,7 @@
 | 06  | Core Model (MVC)       | X      |
 | 07  | Render Playfield       | X      |
 | 08  | Random Bag Generator   | X      |
-| 09  | Spawn Piece            |        |
+| 09  | Spawn Piece            | X      |
 | 10  | Gravity Fall           |        |
 | 11  | Collision & Lock Delay |        |
 | 12  | Desktop Controls       |        |
