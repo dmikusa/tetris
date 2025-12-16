@@ -29,6 +29,32 @@ export class MainMenu extends Scene {
       .setOrigin(0.5)
       .setDepth(100);
 
+    // Add button to launch Tetris game
+    const playButton = this.add
+      .text(512, 550, 'Play Tetris', {
+        fontFamily: 'Arial Black',
+        fontSize: 32,
+        color: '#00ff00',
+        stroke: '#000000',
+        strokeThickness: 6,
+        align: 'center',
+      })
+      .setOrigin(0.5)
+      .setDepth(100)
+      .setInteractive({ useHandCursor: true });
+
+    playButton.on('pointerdown', () => {
+      this.scene.start('GameScene');
+    });
+
+    playButton.on('pointerover', () => {
+      playButton.setColor('#ffff00');
+    });
+
+    playButton.on('pointerout', () => {
+      playButton.setColor('#00ff00');
+    });
+
     EventBus.emit('current-scene-ready', this);
   }
 
