@@ -27,14 +27,22 @@ export class Preloader extends Scene {
     this.load.setPath('assets');
 
     this.load.image('menu-background', '7signal_blocks_start_1024x768.jpg');
-    this.load.image('game-background', 'futuristic_arcade_eyeris_blank_1024x768.jpg');
+    this.load.image('game-background', 'arcade_bg_1024x768.png');
   }
 
   create() {
     //  When all the assets have loaded, it's often worth creating global objects here that the rest of the game can use.
     //  For example, you can define global animations here, so we can use them in other scenes.
 
-    //  Move to the MainMenu. You could also swap this for a Scene Transition, such as a camera fade.
-    this.scene.start('MainMenu');
+    //  Load the custom font and wait for it to be ready
+    document.fonts
+      .load('12px "Press Start 2P"')
+      .then(() => {
+        this.scene.start('MainMenu');
+      })
+      .catch(() => {
+        // Fallback: start anyway if font fails to load
+        this.scene.start('MainMenu');
+      });
   }
 }
