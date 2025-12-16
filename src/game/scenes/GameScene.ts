@@ -23,13 +23,19 @@ export class GameScene extends Phaser.Scene {
   private cellGraphics: Phaser.GameObjects.Graphics[][] = [];
   private gameController!: GameController;
   private inputController!: InputController;
+  private background!: Phaser.GameObjects.Image;
 
   constructor() {
     super({ key: 'GameScene' });
   }
 
   create(): void {
-    // Set background color
+    // Add background image
+    this.background = this.add.image(512, 384, 'game-background');
+    this.background.setDisplaySize(1024, 768);
+    this.background.setDepth(-1);
+
+    // Set background color (as fallback)
     this.cameras.main.setBackgroundColor(BACKGROUND_COLOR);
 
     // Calculate playfield position to center it
