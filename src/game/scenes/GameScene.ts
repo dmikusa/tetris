@@ -124,7 +124,7 @@ export class GameScene extends Phaser.Scene {
     // Show/hide game over overlay based on game state
     if (this.gameOverOverlay) {
       this.gameOverOverlay.setVisible(state.isGameOver);
-      
+
       // Update stats if game is over
       if (state.isGameOver && this.statsText) {
         this.statsText.setText([
