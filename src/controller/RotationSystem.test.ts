@@ -11,10 +11,12 @@ describe('RotationSystem', () => {
 
   beforeEach(() => {
     rotationSystem = new RotationSystem();
-    
+
     // Create a basic game state
     gameState = {
-      playfield: Array(FIELD_TOTAL_HEIGHT).fill(null).map(() => Array(FIELD_WIDTH).fill(0)),
+      playfield: Array(FIELD_TOTAL_HEIGHT)
+        .fill(null)
+        .map(() => Array(FIELD_WIDTH).fill(0)),
       currentPiece: {
         type: TetrominoType.T,
         rotation: 0,
@@ -30,32 +32,32 @@ describe('RotationSystem', () => {
   describe('Basic Rotation', () => {
     it('should rotate T piece clockwise through all 4 states', () => {
       expect(gameState.currentPiece.rotation).toBe(0);
-      
+
       rotationSystem.rotateClockwise(gameState);
       expect(gameState.currentPiece.rotation).toBe(1);
-      
+
       rotationSystem.rotateClockwise(gameState);
       expect(gameState.currentPiece.rotation).toBe(2);
-      
+
       rotationSystem.rotateClockwise(gameState);
       expect(gameState.currentPiece.rotation).toBe(3);
-      
+
       rotationSystem.rotateClockwise(gameState);
       expect(gameState.currentPiece.rotation).toBe(0);
     });
 
     it('should rotate T piece counter-clockwise through all 4 states', () => {
       expect(gameState.currentPiece.rotation).toBe(0);
-      
+
       rotationSystem.rotateCounterclockwise(gameState);
       expect(gameState.currentPiece.rotation).toBe(3);
-      
+
       rotationSystem.rotateCounterclockwise(gameState);
       expect(gameState.currentPiece.rotation).toBe(2);
-      
+
       rotationSystem.rotateCounterclockwise(gameState);
       expect(gameState.currentPiece.rotation).toBe(1);
-      
+
       rotationSystem.rotateCounterclockwise(gameState);
       expect(gameState.currentPiece.rotation).toBe(0);
     });
@@ -63,7 +65,7 @@ describe('RotationSystem', () => {
     it('should rotate I piece clockwise', () => {
       gameState.currentPiece.type = TetrominoType.I;
       gameState.currentPiece.position = { x: 3, y: 0 };
-      
+
       expect(gameState.currentPiece.rotation).toBe(0);
       rotationSystem.rotateClockwise(gameState);
       expect(gameState.currentPiece.rotation).toBe(1);
@@ -73,12 +75,12 @@ describe('RotationSystem', () => {
       gameState.currentPiece.type = TetrominoType.O;
       gameState.currentPiece.position = { x: 4, y: 0 };
       const initialPosition = { ...gameState.currentPiece.position };
-      
+
       // O-piece rotates through states but stays visually in the same place
       rotationSystem.rotateClockwise(gameState);
       expect(gameState.currentPiece.rotation).toBe(1); // Rotation state changes
       expect(gameState.currentPiece.position).toEqual(initialPosition); // But position stays the same
-      
+
       rotationSystem.rotateCounterclockwise(gameState);
       expect(gameState.currentPiece.rotation).toBe(0); // Back to original state
       expect(gameState.currentPiece.position).toEqual(initialPosition); // Position still the same
@@ -92,10 +94,9 @@ describe('RotationSystem', () => {
       gameState.currentPiece.type = TetrominoType.J;
       gameState.currentPiece.position = { x: 0, y: 5 };
       gameState.currentPiece.rotation = 2; // horizontal with knob on right
-      
-      const initialX = gameState.currentPiece.position.x;
+
       rotationSystem.rotateClockwise(gameState);
-      
+
       // Should have kicked (successfully rotated with potential offset)
       expect(gameState.currentPiece.rotation).toBe(3);
       // Position may or may not have changed depending on the kick, but rotation should succeed
@@ -106,7 +107,7 @@ describe('RotationSystem', () => {
       gameState.currentPiece.type = TetrominoType.I;
       gameState.currentPiece.position = { x: FIELD_WIDTH - 2, y: 5 };
       gameState.currentPiece.rotation = 0;
-      
+
       // Should successfully rotate using one of the kick tests
       rotationSystem.rotateClockwise(gameState);
       expect(gameState.currentPiece.rotation).toBe(1);
@@ -118,7 +119,7 @@ describe('RotationSystem', () => {
       gameState.currentPiece.type = TetrominoType.T;
       gameState.currentPiece.position = { x: 5, y: 5 };
       gameState.currentPiece.rotation = 0;
-      
+
       // Block all possible rotation positions
       for (let y = 3; y < 8; y++) {
         for (let x = 3; x < 8; x++) {
@@ -128,12 +129,12 @@ describe('RotationSystem', () => {
           gameState.playfield[y][x] = 1;
         }
       }
-      
+
       const initialRotation = gameState.currentPiece.rotation;
       const initialPosition = { ...gameState.currentPiece.position };
-      
+
       rotationSystem.rotateClockwise(gameState);
-      
+
       // Should not rotate
       expect(gameState.currentPiece.rotation).toBe(initialRotation);
       expect(gameState.currentPiece.position).toEqual(initialPosition);
@@ -144,10 +145,10 @@ describe('RotationSystem', () => {
       gameState.currentPiece.type = TetrominoType.I;
       gameState.currentPiece.position = { x: 5, y: FIELD_TOTAL_HEIGHT - 3 };
       gameState.currentPiece.rotation = 1; // Vertical
-      
+
       // Try to rotate to horizontal - should kick upward or succeed
       const rotated = rotationSystem.rotateClockwise(gameState);
-      
+
       // Should successfully rotate (SRS allows floor kicks)
       expect(rotated).toBe(true);
       expect(gameState.currentPiece.rotation).toBe(2);
@@ -159,11 +160,10 @@ describe('RotationSystem', () => {
       gameState.currentPiece.type = TetrominoType.I;
       gameState.currentPiece.position = { x: 0, y: 5 };
       gameState.currentPiece.rotation = 0;
-      
+
       // I-piece has different kick offsets than other pieces
-      const initialY = gameState.currentPiece.position.y;
       rotationSystem.rotateClockwise(gameState);
-      
+
       expect(gameState.currentPiece.rotation).toBe(1);
       // I-piece wall kicks should be applied
       expect(gameState.currentPiece.position.x).toBeGreaterThanOrEqual(0);
@@ -173,7 +173,7 @@ describe('RotationSystem', () => {
       gameState.currentPiece.type = TetrominoType.I;
       gameState.currentPiece.position = { x: 5, y: 2 };
       gameState.currentPiece.rotation = 1; // Vertical
-      
+
       rotationSystem.rotateClockwise(gameState);
       expect(gameState.currentPiece.rotation).toBe(2); // Horizontal
     });
@@ -185,14 +185,13 @@ describe('RotationSystem', () => {
       gameState.currentPiece.type = TetrominoType.T;
       gameState.currentPiece.position = { x: 5, y: 5 };
       gameState.currentPiece.rotation = 0;
-      
+
       // Place a locked piece to the right that would collide with rotated shape
       gameState.playfield[5][7] = 1;
       gameState.playfield[6][7] = 1;
-      
-      const initialRotation = gameState.currentPiece.rotation;
+
       rotationSystem.rotateClockwise(gameState);
-      
+
       // Rotation should succeed (likely with a wall kick)
       // But verify it doesn't overlap with existing blocks
       const shape = SHAPES[gameState.currentPiece.type][gameState.currentPiece.rotation];
@@ -211,11 +210,10 @@ describe('RotationSystem', () => {
       // Place piece at very top
       gameState.currentPiece.position = { x: 0, y: 0 };
       gameState.currentPiece.rotation = 0;
-      
+
       // Try to rotate - should either succeed with kick or fail gracefully
-      const initialRotation = gameState.currentPiece.rotation;
       rotationSystem.rotateClockwise(gameState);
-      
+
       // Verify piece is still in bounds
       expect(gameState.currentPiece.position.x).toBeGreaterThanOrEqual(0);
       expect(gameState.currentPiece.position.x).toBeLessThan(FIELD_WIDTH);
@@ -228,9 +226,9 @@ describe('RotationSystem', () => {
     it('should handle rotation at right wall', () => {
       gameState.currentPiece.position = { x: FIELD_WIDTH - 2, y: 5 };
       gameState.currentPiece.rotation = 0;
-      
+
       rotationSystem.rotateClockwise(gameState);
-      
+
       // Should either rotate or stay in same state, but not crash
       expect(gameState.currentPiece.rotation).toBeGreaterThanOrEqual(0);
       expect(gameState.currentPiece.rotation).toBeLessThan(4);
@@ -239,9 +237,9 @@ describe('RotationSystem', () => {
     it('should handle rotation at left wall', () => {
       gameState.currentPiece.position = { x: 0, y: 5 };
       gameState.currentPiece.rotation = 0;
-      
+
       rotationSystem.rotateClockwise(gameState);
-      
+
       // Should either rotate or stay in same state, but not crash
       expect(gameState.currentPiece.rotation).toBeGreaterThanOrEqual(0);
       expect(gameState.currentPiece.rotation).toBeLessThan(4);
@@ -262,7 +260,7 @@ describe('RotationSystem', () => {
         gameState.currentPiece.type = type;
         gameState.currentPiece.rotation = 0;
         gameState.currentPiece.position = { x: 3, y: 5 };
-        
+
         // Should be able to rotate all types without crashing
         expect(() => {
           rotationSystem.rotateClockwise(gameState);

@@ -161,7 +161,12 @@ export class InputController {
     event.preventDefault();
 
     // Handle instant actions (no DAS)
-    if (key === KeyCode.ArrowUp || key === KeyCode.KeyZ || key === KeyCode.KeyX || key === KeyCode.Control) {
+    if (
+      key === KeyCode.ArrowUp ||
+      key === KeyCode.KeyZ ||
+      key === KeyCode.KeyX ||
+      key === KeyCode.Control
+    ) {
       // Prevent browser key repeat for instant actions
       if (event.repeat) {
         return;
@@ -211,7 +216,12 @@ export class InputController {
     event.preventDefault();
 
     // Instant actions don't have DAS state
-    if (key === KeyCode.ArrowUp || key === KeyCode.KeyZ || key === KeyCode.KeyX || key === KeyCode.Control) {
+    if (
+      key === KeyCode.ArrowUp ||
+      key === KeyCode.KeyZ ||
+      key === KeyCode.KeyX ||
+      key === KeyCode.Control
+    ) {
       return;
     }
 

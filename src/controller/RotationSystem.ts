@@ -1,11 +1,10 @@
-import { Piece, Matrix, RotationState, GameState } from '../model/types';
+import { Piece, Matrix, GameState } from '../model/types';
 import { SHAPES } from '../model/shapes';
 import { FIELD_WIDTH, FIELD_TOTAL_HEIGHT } from '../model/constants';
 import {
   getWallKickTable,
   getNextRotationState,
   getRotationTransitionKey,
-  KickOffset,
 } from '../model/wallKicks';
 
 /**
@@ -144,10 +143,17 @@ export class RotationSystem {
    * @returns true if rotation was successful
    */
   rotateCounterclockwise(gameState: GameState): boolean;
-  rotateCounterclockwise(pieceOrState: Piece | GameState, matrix?: Matrix): RotationResult | boolean {
+  rotateCounterclockwise(
+    pieceOrState: Piece | GameState,
+    matrix?: Matrix
+  ): RotationResult | boolean {
     if ('currentPiece' in pieceOrState) {
       // GameState version
-      const result = this.rotate(pieceOrState.currentPiece, 'counterclockwise', pieceOrState.playfield);
+      const result = this.rotate(
+        pieceOrState.currentPiece,
+        'counterclockwise',
+        pieceOrState.playfield
+      );
       if (result.success && result.piece) {
         pieceOrState.currentPiece = result.piece;
         return true;
