@@ -16,7 +16,7 @@ This is the technical stack for the Tetris game.
 
 7. Please set up ESLint & Prettier with the project. Follow best practices and recommendations with the configuration of these two tools.
 
-8. The project will use NPM for dependency managment and package installation.
+8. The project will use NPM for dependency management and package installation.
 
 9. The project needs an NPM script that will build the project and produce a set of HTML, Images, CSS, and Javascript that can be deployed to a static file server or run directly from the filesystem.
 

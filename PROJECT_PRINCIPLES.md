@@ -16,7 +16,7 @@ These are the rules for developing on this project.
 ## Project Management
 
 1. The project has a list of stories in the TODO.md file.
-2. When finished with a story, you may take a new story from that list. Update the document that ths story is "IP", in progress, when you start. Mark it as "X", finished, when done and PR is merged.
+2. When finished with a story, you may take a new story from that list. Update the document that this story is "IP", in progress, when you start. Mark it as "X", finished, when done and PR is merged.
 
 ## Coding Style
 
