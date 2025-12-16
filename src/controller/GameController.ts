@@ -113,7 +113,7 @@ export class GameController {
     this.state.activePiece = newPiece;
 
     // Immediately drop piece one row
-    this.state.activePiece.position.y--;
+    this.state.activePiece.position.y++;
 
     return true;
   }
@@ -238,7 +238,7 @@ export class GameController {
 
     // Calculate actual drop distance (difference in position)
     const finalY = this.state.activePiece.position.y;
-    dropDistance = startY - finalY;
+    dropDistance = finalY - startY;
 
     // Lock the piece immediately (bypass lock delay)
     this.lockPiece();

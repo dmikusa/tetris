@@ -204,7 +204,7 @@ describe('RotationSystem', () => {
           if (shape[row][col]) {
             const fieldX = gameState.currentPiece.position.x + col;
             const fieldY = gameState.currentPiece.position.y + row;
-            expect(gameState.playfield[fieldY][fieldX]).toBe(0);
+            expect(gameState.playfield[fieldY][fieldX]).toBeNull();
           }
         }
       }
