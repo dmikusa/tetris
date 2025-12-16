@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { RotationSystem } from './RotationSystem';
-import { TetrominoType } from '../model/types';
+import { TetrominoType, GameStatus, type Cell } from '../model/types';
 import type { GameState } from '../model/types';
 import { SHAPES } from '../model/shapes';
 import { FIELD_WIDTH, FIELD_TOTAL_HEIGHT } from '../model/constants';
@@ -13,11 +13,11 @@ describe('RotationSystem', () => {
     rotationSystem = new RotationSystem();
 
     // Create a basic game state
-    const playfield = Array(FIELD_TOTAL_HEIGHT)
+    const playfield: Cell[][] = Array(FIELD_TOTAL_HEIGHT)
       .fill(null)
-      .map(() => Array(FIELD_WIDTH).fill(0));
+      .map(() => Array(FIELD_WIDTH).fill(null));
     gameState = {
-      matrix: playfield as any,
+      matrix: playfield,
       playfield: playfield,
       activePiece: null,
       currentPiece: {
@@ -28,7 +28,7 @@ describe('RotationSystem', () => {
       score: 0,
       level: 1,
       linesCleared: 0,
-      status: 0 as any,
+      status: GameStatus.Playing,
       isGameOver: false,
     };
   });
