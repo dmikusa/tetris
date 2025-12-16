@@ -10,8 +10,10 @@ These are the rules for developing on this project.
 ## Source Control
 
 1. The project uses git for source control.
-2. Each story should be implemented and submitted on a branch to Github as a pull request.
-3. New stories should always start on a new branch taken from HEAD.
+2. Do not use GitKraken MCP server, instead just run git commands directly.
+3. Line endings should always be LF. Convert any files with CRLF to LF, so that we don't get this error `fatal: CRLF would be replaced by LF in src/App.tsx`.
+4. Each story should be implemented and submitted on a branch to Github as a pull request.
+5. New stories should always start on a new branch taken from HEAD.
 
 ## Project Management
 
