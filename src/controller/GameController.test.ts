@@ -305,4 +305,114 @@ describe('GameController', () => {
       expect(pieces2).toEqual(pieces1);
     });
   });
+
+  describe('Gravity and Movement Tests', () => {
+    it('should have gravity system initialized', () => {
+      const gravity = controller.getGravitySystem();
+      expect(gravity).toBeDefined();
+      expect(gravity.getLevel()).toBe(1);
+    });
+
+    it('should move piece down one row', () => {
+      controller.spawnNextPiece();
+      const state = controller.getState();
+      const initialY = state.activePiece?.position.y;
+
+      const success = controller.moveDown();
+
+      expect(success).toBe(true);
+      expect(state.activePiece?.position.y).toBe(initialY! - 1);
+    });
+
+    it('should return false when piece cannot move down', () => {
+      controller.spawnNextPiece();
+      const state = controller.getState();
+
+      // Block the space below the piece
+      if (state.activePiece) {
+        const blockY = state.activePiece.position.y - 1;
+        for (let x = 0; x < FIELD_WIDTH; x++) {
+          state.matrix[blockY][x] = TetrominoType.I;
+        }
+      }
+
+      const success = controller.moveDown();
+
+      expect(success).toBe(false);
+    });
+
+    it('should not move piece when game is not playing', () => {
+      controller.spawnNextPiece();
+      const state = controller.getState();
+      const initialY = state.activePiece?.position.y;
+
+      state.status = GameStatus.Paused;
+
+      const success = controller.moveDown();
+
+      expect(success).toBe(false);
+      expect(state.activePiece?.position.y).toBe(initialY);
+    });
+
+    it('should not move piece when no active piece', () => {
+      const state = controller.getState();
+      state.activePiece = null;
+
+      const success = controller.moveDown();
+
+      expect(success).toBe(false);
+    });
+
+    it('should move piece multiple times', () => {
+      controller.spawnNextPiece();
+      const state = controller.getState();
+      const initialY = state.activePiece?.position.y ?? 0;
+
+      controller.moveDown();
+      controller.moveDown();
+      controller.moveDown();
+
+      expect(state.activePiece?.position.y).toBe(initialY - 3);
+    });
+  });
+
+  describe('Pause and Resume Tests', () => {
+    it('should pause the game', () => {
+      controller.spawnNextPiece();
+      const state = controller.getState();
+
+      controller.pause();
+
+      expect(state.status).toBe(GameStatus.Paused);
+    });
+
+    it('should resume the game', () => {
+      controller.spawnNextPiece();
+      const state = controller.getState();
+
+      controller.pause();
+      expect(state.status).toBe(GameStatus.Paused);
+
+      controller.resume();
+      expect(state.status).toBe(GameStatus.Playing);
+    });
+
+    it('should not pause when not playing', () => {
+      const state = controller.getState();
+      state.status = GameStatus.GameOver;
+
+      controller.pause();
+
+      expect(state.status).toBe(GameStatus.GameOver);
+    });
+
+    it('should not resume when not paused', () => {
+      controller.spawnNextPiece();
+      const state = controller.getState();
+
+      controller.resume();
+
+      expect(state.status).toBe(GameStatus.Playing);
+    });
+  });
 });
