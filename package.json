@@ -20,17 +20,18 @@
     "typescript"
   ],
   "scripts": {
-    "dev": "vite --config vite/config.dev.mjs",
+    "dev": "vite --config vite/config.dev.mjs --open",
     "build": "vite build --config vite/config.prod.mjs",
+    "preview": "vite preview --config vite/config.prod.mjs --open",
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint src --ext ts,tsx --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\"",
-    "test": "vitest",
-    "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "test:ui": "vitest --ui"
+    "test": "vitest --config vite/vitest.config.ts",
+    "test:run": "vitest run --config vite/vitest.config.ts",
+    "test:coverage": "vitest run --coverage --config vite/vitest.config.ts",
+    "test:ui": "vitest --ui --config vite/vitest.config.ts"
   },
   "dependencies": {
     "phaser": "^3.90.0",

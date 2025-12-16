@@ -6,7 +6,7 @@
 | 02  | CI Setup               | X      |
 | 03  | Lint & Format          | X      |
 | 04  | Test Stack             | X      |
-| 05  | Build Output           |        |
+| 05  | Build Output           | X      |
 | 06  | Core Model (MVC)       |        |
 | 07  | Render Playfield       |        |
 | 08  | Random Bag Generator   |        |
