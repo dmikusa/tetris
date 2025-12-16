@@ -17,6 +17,7 @@ const BACKGROUND_COLOR = 0x000000;
 export class GameScene extends Phaser.Scene {
   private playfieldContainer!: Phaser.GameObjects.Container;
   private cellGraphics: Phaser.GameObjects.Graphics[][] = [];
+  // @ts-expect-error - not used at the moment, but that's OK
   private matrix: Matrix;
 
   constructor() {
