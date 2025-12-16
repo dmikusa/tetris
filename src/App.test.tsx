@@ -4,9 +4,7 @@ import App from './App';
 
 // Mock the PhaserGame component to avoid Phaser initialization in tests
 vi.mock('./PhaserGame', () => ({
-  PhaserGame: ({ ref }: { ref: React.RefObject<unknown> }) => (
-    <div data-testid="phaser-game" id="game-container" ref={ref} />
-  ),
+  PhaserGame: () => <div data-testid="phaser-game" id="game-container" />,
 }));
 
 describe('App', () => {

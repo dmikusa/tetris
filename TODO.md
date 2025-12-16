@@ -7,11 +7,11 @@
 | 03  | Lint & Format          | X      |
 | 04  | Test Stack             | X      |
 | 05  | Build Output           | X      |
-| 06  | Core Model (MVC)       |        |
-| 07  | Render Playfield       |        |
-| 08  | Random Bag Generator   |        |
-| 09  | Spawn Piece            |        |
-| 10  | Gravity Fall           |        |
+| 06  | Core Model (MVC)       | X      |
+| 07  | Render Playfield       | X      |
+| 08  | Random Bag Generator   | X      |
+| 09  | Spawn Piece            | X      |
+| 10  | Gravity Fall           | X      |
 | 11  | Collision & Lock Delay |        |
 | 12  | Desktop Controls       |        |
 | 13  | Rotation (SRS)         |        |
