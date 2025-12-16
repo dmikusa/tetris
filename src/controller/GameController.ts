@@ -1,4 +1,4 @@
-import { GameState, GameStatus, Piece, TetrominoType } from '../model/types';
+import { GameState, GameStatus, Piece, TetrominoType, RotationState } from '../model/types';
 import { PieceBag } from '../model/PieceBag';
 import { SHAPES } from '../model/shapes';
 import { FIELD_WIDTH, FIELD_TOTAL_HEIGHT } from '../model/constants';
@@ -68,10 +68,18 @@ export class GameController {
 
     return {
       matrix,
+      playfield: matrix,
       activePiece: null,
+      currentPiece: {
+        type: 'T' as TetrominoType,
+        rotation: 0 as RotationState,
+        position: { x: 0, y: 0 },
+      },
       score: 0,
       level: 1,
+      linesCleared: 0,
       status: GameStatus.Playing,
+      isGameOver: false,
     };
   }
 

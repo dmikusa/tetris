@@ -13,6 +13,8 @@ describe('InputController', () => {
       onSoftDropStart: vi.fn(),
       onSoftDropEnd: vi.fn(),
       onHardDrop: vi.fn(),
+      onRotateClockwise: vi.fn(),
+      onRotateCounterclockwise: vi.fn(),
     };
 
     // Create input controller

@@ -13,10 +13,13 @@ describe('RotationSystem', () => {
     rotationSystem = new RotationSystem();
 
     // Create a basic game state
+    const playfield = Array(FIELD_TOTAL_HEIGHT)
+      .fill(null)
+      .map(() => Array(FIELD_WIDTH).fill(0));
     gameState = {
-      playfield: Array(FIELD_TOTAL_HEIGHT)
-        .fill(null)
-        .map(() => Array(FIELD_WIDTH).fill(0)),
+      matrix: playfield as any,
+      playfield: playfield,
+      activePiece: null,
       currentPiece: {
         type: TetrominoType.T,
         rotation: 0,
@@ -25,6 +28,7 @@ describe('RotationSystem', () => {
       score: 0,
       level: 1,
       linesCleared: 0,
+      status: 0 as any,
       isGameOver: false,
     };
   });
@@ -126,7 +130,7 @@ describe('RotationSystem', () => {
           if (y === 5 && x >= 4 && x <= 6) {
             continue; // Leave space for current piece
           }
-          gameState.playfield[y][x] = 1;
+          gameState.playfield[y][x] = TetrominoType.I;
         }
       }
 
@@ -187,8 +191,8 @@ describe('RotationSystem', () => {
       gameState.currentPiece.rotation = 0;
 
       // Place a locked piece to the right that would collide with rotated shape
-      gameState.playfield[5][7] = 1;
-      gameState.playfield[6][7] = 1;
+      gameState.playfield[5][7] = TetrominoType.I;
+      gameState.playfield[6][7] = TetrominoType.I;
 
       rotationSystem.rotateClockwise(gameState);
 

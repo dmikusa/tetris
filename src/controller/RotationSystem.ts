@@ -92,7 +92,7 @@ export class RotationSystem {
           }
 
           // Check if cell is occupied
-          if (matrix[fieldY][fieldX] !== 0) {
+          if (matrix[fieldY][fieldX] !== null) {
             return true;
           }
         }

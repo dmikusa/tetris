@@ -62,15 +62,11 @@ export interface GameState {
   /** Playfield matrix */
   matrix: Matrix;
   /** Playfield matrix (alias for compatibility) */
-  playfield: number[][];
+  playfield: Matrix;
   /** Currently active piece (null if none) */
   activePiece: Piece | null;
   /** Currently active piece (alias for compatibility) */
-  currentPiece: {
-    type: TetrominoType;
-    rotation: number;
-    position: { x: number; y: number };
-  };
+  currentPiece: Piece;
   /** Current score */
   score: number;
   /** Current level */
