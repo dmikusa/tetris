@@ -8,7 +8,7 @@
 | 04  | Test Stack             | X      |
 | 05  | Build Output           | X      |
 | 06  | Core Model (MVC)       | X      |
-| 07  | Render Playfield       |        |
+| 07  | Render Playfield       | X      |
 | 08  | Random Bag Generator   |        |
 | 09  | Spawn Piece            |        |
 | 10  | Gravity Fall           |        |
