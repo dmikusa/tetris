@@ -6,6 +6,7 @@ import { GravitySystem } from './GravitySystem';
 import { CollisionDetector } from './CollisionDetector';
 import { LockDelaySystem } from './LockDelaySystem';
 import { RotationSystem } from './RotationSystem';
+import { LineClearSystem } from './LineClearSystem';
 
 /**
  * Spawn positions for each tetromino type
@@ -32,6 +33,7 @@ export class GameController {
   private collisionDetector: CollisionDetector;
   private lockDelaySystem: LockDelaySystem;
   private rotationSystem: RotationSystem;
+  private lineClearSystem: LineClearSystem;
 
   /**
    * Creates a new game controller
@@ -44,6 +46,7 @@ export class GameController {
     this.lockDelaySystem = new LockDelaySystem(() => this.lockPiece());
     this.gravitySystem = new GravitySystem(this.state.level, () => this.moveDown());
     this.rotationSystem = new RotationSystem();
+    this.lineClearSystem = new LineClearSystem();
   }
 
   /**
@@ -338,6 +341,15 @@ export class GameController {
     // Clear active piece
     this.state.activePiece = null;
 
+    // Check for completed lines and clear them
+    const affectedRows = this.lineClearSystem.getAffectedRows(piece.position.y, 4);
+    const clearResult = this.lineClearSystem.checkAndClearLines(this.state.matrix, affectedRows);
+
+    // Update total lines cleared count
+    if (clearResult.linesCleared > 0) {
+      this.state.linesCleared += clearResult.linesCleared;
+    }
+
     // Spawn next piece
     this.spawnNextPiece();
 
@@ -419,5 +431,12 @@ export class GameController {
    */
   getRotationSystem(): RotationSystem {
     return this.rotationSystem;
+  }
+
+  /**
+   * Gets the line clear system instance
+   */
+  getLineClearSystem(): LineClearSystem {
+    return this.lineClearSystem;
   }
 }
