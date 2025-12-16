@@ -3,7 +3,7 @@
 | ID  | Story                  | Status |
 | --- | ---------------------- | ------ |
 | 01  | Project Bootstrap      | X      |
-| 02  | CI Setup               |        |
+| 02  | CI Setup               | IP     |
 | 03  | Lint & Format          |        |
 | 04  | Test Stack             |        |
 | 05  | Build Output           |        |
