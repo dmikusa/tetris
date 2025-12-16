@@ -2,6 +2,7 @@ import { GameState, GameStatus, Piece, TetrominoType } from '../model/types';
 import { PieceBag } from '../model/PieceBag';
 import { SHAPES } from '../model/shapes';
 import { FIELD_WIDTH, FIELD_TOTAL_HEIGHT } from '../model/constants';
+import { GravitySystem } from './GravitySystem';
 
 /**
  * Spawn positions for each tetromino type
@@ -24,6 +25,7 @@ const SPAWN_POSITIONS: Record<TetrominoType, { x: number; y: number }> = {
 export class GameController {
   private state: GameState;
   private pieceBag: PieceBag;
+  private gravitySystem: GravitySystem;
 
   /**
    * Creates a new game controller
@@ -32,6 +34,7 @@ export class GameController {
   constructor(seed?: number) {
     this.pieceBag = new PieceBag(seed);
     this.state = this.createInitialState();
+    this.gravitySystem = new GravitySystem(this.state.level, () => this.moveDown());
   }
 
   /**
@@ -99,6 +102,36 @@ export class GameController {
   }
 
   /**
+   * Moves the active piece down by one row
+   * @returns true if movement succeeded, false if blocked
+   */
+  moveDown(): boolean {
+    if (!this.state.activePiece || this.state.status !== GameStatus.Playing) {
+      return false;
+    }
+
+    // Try to move down
+    const testPiece: Piece = {
+      ...this.state.activePiece,
+      position: {
+        x: this.state.activePiece.position.x,
+        y: this.state.activePiece.position.y - 1,
+      },
+    };
+
+    // Check if move is valid
+    if (this.checkOverlap(testPiece)) {
+      // Cannot move down - will trigger lock delay in Story 11
+      this.gravitySystem.stop();
+      return false;
+    }
+
+    // Move is valid, update position
+    this.state.activePiece.position.y--;
+    return true;
+  }
+
+  /**
    * Checks if a piece overlaps with existing blocks in the playfield
    * @param piece - The piece to check
    * @returns true if overlap detected, false if position is clear
@@ -133,8 +166,11 @@ export class GameController {
    * Starts a new game
    */
   startGame(): void {
+    this.gravitySystem.stop();
     this.state = this.createInitialState();
+    this.gravitySystem.setLevel(this.state.level);
     this.spawnNextPiece();
+    this.gravitySystem.start(); // Start gravity after first piece spawns
   }
 
   /**
@@ -143,5 +179,32 @@ export class GameController {
    */
   resetBag(seed?: number): void {
     this.pieceBag.reset(seed);
+  }
+
+  /**
+   * Gets the gravity system instance
+   */
+  getGravitySystem(): GravitySystem {
+    return this.gravitySystem;
+  }
+
+  /**
+   * Pauses the game
+   */
+  pause(): void {
+    if (this.state.status === GameStatus.Playing) {
+      this.state.status = GameStatus.Paused;
+      this.gravitySystem.pause();
+    }
+  }
+
+  /**
+   * Resumes the game
+   */
+  resume(): void {
+    if (this.state.status === GameStatus.Paused) {
+      this.state.status = GameStatus.Playing;
+      this.gravitySystem.resume();
+    }
   }
 }

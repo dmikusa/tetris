@@ -11,7 +11,7 @@
 | 07  | Render Playfield       | X      |
 | 08  | Random Bag Generator   | X      |
 | 09  | Spawn Piece            | X      |
-| 10  | Gravity Fall           |        |
+| 10  | Gravity Fall           | X      |
 | 11  | Collision & Lock Delay |        |
 | 12  | Desktop Controls       |        |
 | 13  | Rotation (SRS)         |        |
