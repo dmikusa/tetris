@@ -24,6 +24,10 @@ export class GameScene extends Phaser.Scene {
   private gameController!: GameController;
   private inputController!: InputController;
   private background!: Phaser.GameObjects.Image;
+  private gameOverOverlay?: Phaser.GameObjects.Container;
+  private gameOverText?: Phaser.GameObjects.Text;
+  private statsText?: Phaser.GameObjects.Text;
+  private restartText?: Phaser.GameObjects.Text;
 
   constructor() {
     super({ key: 'GameScene' });
@@ -69,6 +73,9 @@ export class GameScene extends Phaser.Scene {
 
     // Start the game
     this.gameController.startGame();
+
+    // Create game over overlay (initially hidden)
+    this.createGameOverOverlay();
   }
 
   /**
@@ -113,6 +120,20 @@ export class GameScene extends Phaser.Scene {
 
     // Render the playfield
     this.renderState(state);
+
+    // Show/hide game over overlay based on game state
+    if (this.gameOverOverlay) {
+      this.gameOverOverlay.setVisible(state.isGameOver);
+      
+      // Update stats if game is over
+      if (state.isGameOver && this.statsText) {
+        this.statsText.setText([
+          `Score: ${state.score}`,
+          `Level: ${state.level}`,
+          `Lines: ${state.linesCleared}`,
+        ]);
+      }
+    }
   }
 
   /**
@@ -201,6 +222,63 @@ export class GameScene extends Phaser.Scene {
     // Draw border
     graphics.lineStyle(GRID_LINE_WIDTH, GRID_LINE_COLOR, 1);
     graphics.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
+  }
+
+  /**
+   * Creates the game over overlay with semi-transparent background and text
+   */
+  private createGameOverOverlay(): void {
+    const centerX = this.cameras.main.width / 2;
+    const centerY = this.cameras.main.height / 2;
+
+    // Create container for all game over elements
+    this.gameOverOverlay = this.add.container(0, 0);
+    this.gameOverOverlay.setDepth(1000); // Render on top of everything
+    this.gameOverOverlay.setVisible(false); // Hidden by default
+
+    // Semi-transparent dark background
+    const overlay = this.add.graphics();
+    overlay.fillStyle(0x000000, 0.8);
+    overlay.fillRect(0, 0, this.cameras.main.width, this.cameras.main.height);
+    this.gameOverOverlay.add(overlay);
+
+    // Game Over text
+    this.gameOverText = this.add.text(centerX, centerY - 100, 'GAME OVER', {
+      fontFamily: 'Arial',
+      fontSize: '64px',
+      color: '#ff0000',
+      stroke: '#ffffff',
+      strokeThickness: 4,
+    });
+    this.gameOverText.setOrigin(0.5);
+    this.gameOverOverlay.add(this.gameOverText);
+
+    // Stats text
+    this.statsText = this.add.text(centerX, centerY, '', {
+      fontFamily: 'Arial',
+      fontSize: '32px',
+      color: '#ffffff',
+      align: 'center',
+    });
+    this.statsText.setOrigin(0.5);
+    this.gameOverOverlay.add(this.statsText);
+
+    // Restart instructions
+    this.restartText = this.add.text(centerX, centerY + 100, 'Press SPACE to restart', {
+      fontFamily: 'Arial',
+      fontSize: '24px',
+      color: '#ffff00',
+    });
+    this.restartText.setOrigin(0.5);
+    this.gameOverOverlay.add(this.restartText);
+
+    // Add keyboard listener for restart
+    this.input.keyboard?.on('keydown-SPACE', () => {
+      const state = this.gameController.getState();
+      if (state.isGameOver) {
+        this.gameController.startGame();
+      }
+    });
   }
 
   /**
