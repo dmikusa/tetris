@@ -755,12 +755,10 @@ describe('GameController', () => {
         }
       }
 
-      const initialY = state.activePiece?.position.y ?? 0;
-
       const dropDistance = controller.hardDrop();
 
       expect(dropDistance).toBeGreaterThanOrEqual(0);
-      // Should drop from initialY (around 22) to bottom (around 36-39), so distance should be about 14-17
+      // Should drop from spawn position (around 22) to bottom (around 36-39), so distance should be about 14-17
       expect(dropDistance).toBeGreaterThan(10);
     });
 
