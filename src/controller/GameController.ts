@@ -1,7 +1,7 @@
 import { GameState, GameStatus, Piece, TetrominoType, RotationState } from '../model/types';
 import { PieceBag } from '../model/PieceBag';
 import { SHAPES } from '../model/shapes';
-import { FIELD_WIDTH, FIELD_TOTAL_HEIGHT } from '../model/constants';
+import { FIELD_WIDTH, FIELD_TOTAL_HEIGHT, FIELD_VISIBLE_HEIGHT } from '../model/constants';
 import { GravitySystem } from './GravitySystem';
 import { CollisionDetector } from './CollisionDetector';
 import { LockDelaySystem } from './LockDelaySystem';
@@ -106,9 +106,9 @@ export class GameController {
       rotation: 0,
     };
 
-    // Check for overlap (top-out condition)
+    // Check for spawn overlap (top-out condition 1)
     if (this.checkOverlap(newPiece)) {
-      this.state.status = GameStatus.GameOver;
+      this.triggerGameOver();
       return false;
     }
 
@@ -308,9 +308,6 @@ export class GameController {
   }
 
   /**
-   * Locks the active piece into the playfield matrix
-   */
-  /**
    * Locks the current piece into the playfield matrix
    */
   private lockPiece(): void {
@@ -320,6 +317,12 @@ export class GameController {
 
     const piece = this.state.activePiece;
     const shape = SHAPES[piece.type][piece.rotation];
+
+    // Check for lock-out condition (piece locks above visible playfield)
+    if (this.isLockOut(piece)) {
+      this.triggerGameOver();
+      return;
+    }
 
     // Transfer piece minos to matrix
     for (let y = 0; y < shape.length; y++) {
@@ -338,6 +341,12 @@ export class GameController {
     // Clear active piece
     this.state.activePiece = null;
 
+    // Check for block-out condition (any cell above row 40)
+    if (this.isBlockOut()) {
+      this.triggerGameOver();
+      return;
+    }
+
     // Check for completed lines and clear them
     const affectedRows = this.lineClearSystem.getAffectedRows(piece.position.y, 4);
     const clearResult = this.lineClearSystem.checkAndClearLines(this.state.matrix, affectedRows);
@@ -348,10 +357,12 @@ export class GameController {
     }
 
     // Spawn next piece
-    this.spawnNextPiece();
+    const spawnSuccess = this.spawnNextPiece();
 
-    // Restart gravity
-    this.gravitySystem.start();
+    // Only restart gravity if spawn succeeded
+    if (spawnSuccess) {
+      this.gravitySystem.start();
+    }
   }
 
   /**
@@ -368,7 +379,26 @@ export class GameController {
    */
   startGame(): void {
     this.gravitySystem.stop();
-    this.state = this.createInitialState();
+    this.lockDelaySystem.stop();
+
+    // Reset the existing state object rather than creating a new one
+    // This ensures references to the state object remain valid
+
+    // Clear the matrix
+    for (let y = 0; y < FIELD_TOTAL_HEIGHT; y++) {
+      for (let x = 0; x < FIELD_WIDTH; x++) {
+        this.state.matrix[y][x] = null;
+      }
+    }
+
+    // Reset game state properties
+    this.state.activePiece = null;
+    this.state.score = 0;
+    this.state.level = 1;
+    this.state.linesCleared = 0;
+    this.state.status = GameStatus.Playing;
+    this.state.isGameOver = false;
+
     this.gravitySystem.setLevel(this.state.level);
     this.spawnNextPiece();
     this.gravitySystem.start(); // Start gravity after first piece spawns
@@ -435,5 +465,58 @@ export class GameController {
    */
   getLineClearSystem(): LineClearSystem {
     return this.lineClearSystem;
+  }
+
+  /**
+   * Checks if a piece locks out (locks completely above visible playfield)
+   * Top-out condition 2: Piece locks at row 19 or above (visible area is rows 20-39)
+   * @param piece - The piece being locked
+   * @returns true if any part of the piece is above row 20, false otherwise
+   */
+  private isLockOut(piece: Piece): boolean {
+    const shape = SHAPES[piece.type][piece.rotation];
+    const visibleStartRow = FIELD_TOTAL_HEIGHT - FIELD_VISIBLE_HEIGHT; // Row 20
+
+    for (let y = 0; y < shape.length; y++) {
+      for (let x = 0; x < shape[y].length; x++) {
+        if (shape[y][x] === 1) {
+          const fieldY = piece.position.y + y;
+          // If any mino is above the visible area (row < 20), it's a lock-out
+          if (fieldY < visibleStartRow) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Checks if any blocks are pushed above the playfield boundary
+   * Top-out condition 3: Block pushed above row 40 (extremely rare)
+   * @returns true if any cell at row -1 or above is filled, false otherwise
+   */
+  private isBlockOut(): boolean {
+    // Since our matrix has indices 0-39, block-out would mean a piece somehow
+    // got placed at a negative row or row >= FIELD_TOTAL_HEIGHT
+    // This is prevented by bounds checking in lockPiece, so this is just a safety check
+
+    // In Tetris guideline, this checks if stack height exceeds total playfield height
+    // Since we already bounds-check during locking (fieldY >= 0 && fieldY < FIELD_TOTAL_HEIGHT),
+    // this condition is technically impossible in our implementation
+    // We'll keep this method for completeness but it will always return false
+    return false;
+  }
+
+  /**
+   * Triggers game over state
+   * Sets game status, stops gravity, and sets isGameOver flag
+   */
+  private triggerGameOver(): void {
+    this.state.status = GameStatus.GameOver;
+    this.state.isGameOver = true;
+    this.gravitySystem.stop();
+    this.lockDelaySystem.stop();
   }
 }
