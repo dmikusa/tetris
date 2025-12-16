@@ -1,6 +1,6 @@
 # Project Specification
 
-At a high level, we are building a Tetris clone. Here are requirements. They are not in any particular order. Stories generated from these requirements should be put in an order such that we build a minimum viable product first, i.e. a minimally functional version of the game. Then more complicated features can be layer on top of that.
+At a high level, we are building a Tetris clone. Here are requirements. They are not in any particular order. Stories generated from these requirements should be put in an order such that we build a minimum viable product first, i.e. a minimally functional version of the game. Then more complicated features can be layered on top of that.
 
 1. Logo. The game must use a variant of the Tetris logo. The guideline contains rules for the use of the logo and what modifications are acceptable. Here is a link to the logo: [https://tetris.wiki/Tetris_logo]
 
