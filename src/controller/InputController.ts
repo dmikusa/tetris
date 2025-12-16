@@ -6,6 +6,9 @@ export enum KeyCode {
   ArrowRight = 'ArrowRight',
   ArrowDown = 'ArrowDown',
   ArrowUp = 'ArrowUp',
+  KeyZ = 'z',
+  KeyX = 'x',
+  Control = 'Control',
 }
 
 /**
@@ -16,6 +19,8 @@ export enum GameAction {
   MoveRight = 'MoveRight',
   SoftDrop = 'SoftDrop',
   HardDrop = 'HardDrop',
+  RotateClockwise = 'RotateClockwise',
+  RotateCounterclockwise = 'RotateCounterclockwise',
 }
 
 /**
@@ -47,6 +52,8 @@ export interface InputCallbacks {
   onSoftDropStart: () => void;
   onSoftDropEnd: () => void;
   onHardDrop: () => void;
+  onRotateClockwise: () => void;
+  onRotateCounterclockwise: () => void;
 }
 
 /**
@@ -69,7 +76,7 @@ export class InputController {
     this.callbacks = callbacks;
     this.dasState = new Map();
 
-    // Initialize DAS state for each control key
+    // Initialize DAS state for each control key (only keys that support DAS)
     this.initializeDASState(KeyCode.ArrowLeft);
     this.initializeDASState(KeyCode.ArrowRight);
     this.initializeDASState(KeyCode.ArrowDown);
@@ -137,27 +144,38 @@ export class InputController {
   private onKeyDown(event: KeyboardEvent): void {
     const key = event.key as KeyCode;
 
-    // Check if this is an arrow key we care about
+    // Check if this is a key we care about
     if (
       key !== KeyCode.ArrowLeft &&
       key !== KeyCode.ArrowRight &&
       key !== KeyCode.ArrowDown &&
-      key !== KeyCode.ArrowUp
+      key !== KeyCode.ArrowUp &&
+      key !== KeyCode.KeyZ &&
+      key !== KeyCode.KeyX &&
+      key !== KeyCode.Control
     ) {
       return;
     }
 
-    // Prevent default browser behavior for arrow keys
+    // Prevent default browser behavior
     event.preventDefault();
 
-    const state = this.dasState.get(key);
-
-    // Hard drop doesn't use DAS state
-    if (key === KeyCode.ArrowUp) {
+    // Handle instant actions (no DAS)
+    if (
+      key === KeyCode.ArrowUp ||
+      key === KeyCode.KeyZ ||
+      key === KeyCode.KeyX ||
+      key === KeyCode.Control
+    ) {
+      // Prevent browser key repeat for instant actions
+      if (event.repeat) {
+        return;
+      }
       this.executeAction(key);
       return;
     }
 
+    const state = this.dasState.get(key);
     if (!state) {
       return;
     }
@@ -182,20 +200,28 @@ export class InputController {
   private onKeyUp(event: KeyboardEvent): void {
     const key = event.key as KeyCode;
 
-    // Check if this is an arrow key we care about
+    // Check if this is a key we care about
     if (
       key !== KeyCode.ArrowLeft &&
       key !== KeyCode.ArrowRight &&
       key !== KeyCode.ArrowDown &&
-      key !== KeyCode.ArrowUp
+      key !== KeyCode.ArrowUp &&
+      key !== KeyCode.KeyZ &&
+      key !== KeyCode.KeyX &&
+      key !== KeyCode.Control
     ) {
       return;
     }
 
     event.preventDefault();
 
-    // Hard drop doesn't use DAS state
-    if (key === KeyCode.ArrowUp) {
+    // Instant actions don't have DAS state
+    if (
+      key === KeyCode.ArrowUp ||
+      key === KeyCode.KeyZ ||
+      key === KeyCode.KeyX ||
+      key === KeyCode.Control
+    ) {
       return;
     }
 
@@ -260,6 +286,13 @@ export class InputController {
         break;
       case KeyCode.ArrowUp:
         this.callbacks.onHardDrop();
+        break;
+      case KeyCode.KeyZ:
+        this.callbacks.onRotateCounterclockwise();
+        break;
+      case KeyCode.KeyX:
+      case KeyCode.Control:
+        this.callbacks.onRotateClockwise();
         break;
     }
   }

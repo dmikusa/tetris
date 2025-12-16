@@ -1,10 +1,11 @@
-import { GameState, GameStatus, Piece, TetrominoType } from '../model/types';
+import { GameState, GameStatus, Piece, TetrominoType, RotationState } from '../model/types';
 import { PieceBag } from '../model/PieceBag';
 import { SHAPES } from '../model/shapes';
 import { FIELD_WIDTH, FIELD_TOTAL_HEIGHT } from '../model/constants';
 import { GravitySystem } from './GravitySystem';
 import { CollisionDetector } from './CollisionDetector';
 import { LockDelaySystem } from './LockDelaySystem';
+import { RotationSystem } from './RotationSystem';
 
 /**
  * Spawn positions for each tetromino type
@@ -30,6 +31,7 @@ export class GameController {
   private gravitySystem: GravitySystem;
   private collisionDetector: CollisionDetector;
   private lockDelaySystem: LockDelaySystem;
+  private rotationSystem: RotationSystem;
 
   /**
    * Creates a new game controller
@@ -41,6 +43,7 @@ export class GameController {
     this.collisionDetector = new CollisionDetector();
     this.lockDelaySystem = new LockDelaySystem(() => this.lockPiece());
     this.gravitySystem = new GravitySystem(this.state.level, () => this.moveDown());
+    this.rotationSystem = new RotationSystem();
   }
 
   /**
@@ -65,10 +68,18 @@ export class GameController {
 
     return {
       matrix,
+      playfield: matrix,
       activePiece: null,
+      currentPiece: {
+        type: 'T' as TetrominoType,
+        rotation: 0 as RotationState,
+        position: { x: 0, y: 0 },
+      },
       score: 0,
       level: 1,
+      linesCleared: 0,
       status: GameStatus.Playing,
+      isGameOver: false,
     };
   }
 
@@ -102,7 +113,7 @@ export class GameController {
     this.state.activePiece = newPiece;
 
     // Immediately drop piece one row
-    this.state.activePiece.position.y--;
+    this.state.activePiece.position.y++;
 
     return true;
   }
@@ -125,7 +136,7 @@ export class GameController {
     }
 
     // Move is valid, update position
-    this.state.activePiece.position.y--;
+    this.state.activePiece.position.y++;
 
     // Reset lock delay if piece was on ground and moved down (step reset)
     if (this.lockDelaySystem.isLockDelayActive()) {
@@ -227,7 +238,7 @@ export class GameController {
 
     // Calculate actual drop distance (difference in position)
     const finalY = this.state.activePiece.position.y;
-    dropDistance = startY - finalY;
+    dropDistance = finalY - startY;
 
     // Lock the piece immediately (bypass lock delay)
     this.lockPiece();
@@ -241,6 +252,59 @@ export class GameController {
     }
 
     return dropDistance;
+  }
+
+  /**
+   * Rotates the active piece clockwise
+   * @returns true if rotation succeeded, false if blocked
+   */
+  rotateClockwise(): boolean {
+    if (!this.state.activePiece || this.state.status !== GameStatus.Playing) {
+      return false;
+    }
+
+    const result = this.rotationSystem.rotateClockwise(this.state.activePiece, this.state.matrix);
+
+    if (result.success && result.piece) {
+      this.state.activePiece = result.piece;
+
+      // Reset lock delay on successful rotation (move reset mode)
+      if (this.lockDelaySystem.isLockDelayActive()) {
+        this.lockDelaySystem.reset(false);
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Rotates the active piece counterclockwise
+   * @returns true if rotation succeeded, false if blocked
+   */
+  rotateCounterclockwise(): boolean {
+    if (!this.state.activePiece || this.state.status !== GameStatus.Playing) {
+      return false;
+    }
+
+    const result = this.rotationSystem.rotateCounterclockwise(
+      this.state.activePiece,
+      this.state.matrix
+    );
+
+    if (result.success && result.piece) {
+      this.state.activePiece = result.piece;
+
+      // Reset lock delay on successful rotation (move reset mode)
+      if (this.lockDelaySystem.isLockDelayActive()) {
+        this.lockDelaySystem.reset(false);
+      }
+
+      return true;
+    }
+
+    return false;
   }
 
   /**
@@ -348,5 +412,12 @@ export class GameController {
    */
   getLockDelaySystem(): LockDelaySystem {
     return this.lockDelaySystem;
+  }
+
+  /**
+   * Gets the rotation system instance
+   */
+  getRotationSystem(): RotationSystem {
+    return this.rotationSystem;
   }
 }

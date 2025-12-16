@@ -201,7 +201,8 @@ describe('CollisionDetector', () => {
     });
 
     it('canMoveDown should return false when blocked', () => {
-      emptyMatrix[0][4] = TetrominoType.I;
+      // Place a block at row 2 to block the piece at row 1 from moving down
+      emptyMatrix[2][4] = TetrominoType.I;
 
       const piece: Piece = {
         type: TetrominoType.T,

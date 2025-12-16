@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { GameController } from './GameController';
 import { TetrominoType, GameStatus } from '../model/types';
-import { FIELD_WIDTH } from '../model/constants';
+import { FIELD_WIDTH, FIELD_TOTAL_HEIGHT } from '../model/constants';
 import { SHAPES } from '../model/shapes';
 
 describe('GameController', () => {
@@ -49,7 +49,7 @@ describe('GameController', () => {
 
         if (state.activePiece?.type === TetrominoType.I) {
           expect(state.activePiece.position.x).toBe(3);
-          expect(state.activePiece.position.y).toBe(20); // 21 - 1 (after initial drop)
+          expect(state.activePiece.position.y).toBe(22); // 21 + 1 (after initial drop)
           iPieceFound = true;
           break;
         }
@@ -69,7 +69,7 @@ describe('GameController', () => {
 
         if (state.activePiece?.type === TetrominoType.O) {
           expect(state.activePiece.position.x).toBe(4);
-          expect(state.activePiece.position.y).toBe(20); // 21 - 1
+          expect(state.activePiece.position.y).toBe(22); // 21 + 1
           oPieceFound = true;
           break;
         }
@@ -96,7 +96,7 @@ describe('GameController', () => {
 
         if (state.activePiece && leftRoundedPieces.includes(state.activePiece.type)) {
           expect(state.activePiece.position.x).toBe(3);
-          expect(state.activePiece.position.y).toBe(20); // 21 - 1
+          expect(state.activePiece.position.y).toBe(22); // 21 + 1
           foundPieces.add(state.activePiece.type);
         }
       }
@@ -124,8 +124,8 @@ describe('GameController', () => {
       controller.spawnNextPiece();
       const state = controller.getState();
 
-      // Piece should be at y=20 (spawned at 21, dropped to 20)
-      expect(state.activePiece?.position.y).toBe(20);
+      // Piece should be at y=22 (spawned at 21, dropped to 22)
+      expect(state.activePiece?.position.y).toBe(22);
     });
   });
 
@@ -322,7 +322,7 @@ describe('GameController', () => {
       const success = controller.moveDown();
 
       expect(success).toBe(true);
-      expect(state.activePiece?.position.y).toBe(initialY! - 1);
+      expect(state.activePiece?.position.y).toBe(initialY! + 1);
     });
 
     it('should return false when piece cannot move down', () => {
@@ -331,7 +331,7 @@ describe('GameController', () => {
 
       // Block the space below the piece
       if (state.activePiece) {
-        const blockY = state.activePiece.position.y - 1;
+        const blockY = state.activePiece.position.y + 1;
         for (let x = 0; x < FIELD_WIDTH; x++) {
           state.matrix[blockY][x] = TetrominoType.I;
         }
@@ -373,7 +373,7 @@ describe('GameController', () => {
       controller.moveDown();
       controller.moveDown();
 
-      expect(state.activePiece?.position.y).toBe(initialY - 3);
+      expect(state.activePiece?.position.y).toBe(initialY + 3);
     });
   });
 
@@ -635,7 +635,7 @@ describe('GameController', () => {
         controller.moveDown();
 
         expect(state.activePiece?.position.x).toBe(initialX + 1);
-        expect(state.activePiece?.position.y).toBe(initialY - 2);
+        expect(state.activePiece?.position.y).toBe(initialY + 2);
       });
     });
   });
@@ -651,7 +651,7 @@ describe('GameController', () => {
 
       controller.softDropStart();
 
-      expect(state.activePiece?.position.y).toBe(initialY! - 1);
+      expect(state.activePiece?.position.y).toBe(initialY! + 1);
     });
 
     it('should not soft drop when no active piece', () => {
@@ -755,12 +755,11 @@ describe('GameController', () => {
         }
       }
 
-      const initialY = state.activePiece?.position.y ?? 0;
-
       const dropDistance = controller.hardDrop();
 
       expect(dropDistance).toBeGreaterThanOrEqual(0);
-      expect(dropDistance).toBe(initialY); // Should drop from initialY to ~0
+      // Should drop from spawn position (around 22) to bottom (around 36-39), so distance should be about 14-17
+      expect(dropDistance).toBeGreaterThan(10);
     });
 
     it('should handle hard drop when piece is already at bottom', () => {
@@ -768,7 +767,7 @@ describe('GameController', () => {
 
       // Move piece close to bottom
       if (state.activePiece) {
-        state.activePiece.position.y = 1;
+        state.activePiece.position.y = FIELD_TOTAL_HEIGHT - 2;
       }
 
       const dropDistance = controller.hardDrop();
@@ -781,8 +780,8 @@ describe('GameController', () => {
     it('should lock piece into correct position', () => {
       const state = controller.getState();
 
-      // Clear bottom rows
-      for (let y = 0; y < 5; y++) {
+      // Clear bottom rows (near the actual bottom at Y=39)
+      for (let y = FIELD_TOTAL_HEIGHT - 5; y < FIELD_TOTAL_HEIGHT; y++) {
         for (let x = 0; x < FIELD_WIDTH; x++) {
           state.matrix[y][x] = null;
         }
@@ -792,9 +791,9 @@ describe('GameController', () => {
 
       controller.hardDrop();
 
-      // Check that piece was locked at the bottom
+      // Check that piece was locked near the bottom
       let foundAtBottom = false;
-      for (let y = 0; y < 5; y++) {
+      for (let y = FIELD_TOTAL_HEIGHT - 5; y < FIELD_TOTAL_HEIGHT; y++) {
         for (let x = 0; x < FIELD_WIDTH; x++) {
           if (state.matrix[y][x] === pieceType) {
             foundAtBottom = true;

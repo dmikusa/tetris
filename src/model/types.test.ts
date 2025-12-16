@@ -98,14 +98,23 @@ describe('Type Definitions', () => {
   });
 
   it('should allow creating a game state', () => {
+    const matrix: Matrix = Array(FIELD_TOTAL_HEIGHT)
+      .fill(null)
+      .map(() => Array(FIELD_WIDTH).fill(null));
     const gameState: GameState = {
-      matrix: Array(FIELD_TOTAL_HEIGHT)
-        .fill(null)
-        .map(() => Array(FIELD_WIDTH).fill(null)),
+      matrix,
+      playfield: matrix,
       activePiece: null,
+      currentPiece: {
+        type: TetrominoType.T,
+        rotation: 0 as RotationState,
+        position: { x: 0, y: 0 },
+      },
       score: 0,
       level: 1,
+      linesCleared: 0,
       status: GameStatus.Playing,
+      isGameOver: false,
     };
 
     expect(gameState.score).toBe(0);

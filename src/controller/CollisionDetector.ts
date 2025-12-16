@@ -56,7 +56,7 @@ export class CollisionDetector {
   canMoveDown(piece: Piece, matrix: Matrix): boolean {
     const newPosition = {
       x: piece.position.x,
-      y: piece.position.y - 1,
+      y: piece.position.y + 1,
     };
     return !this.checkCollision(piece, matrix, newPosition);
   }
