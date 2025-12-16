@@ -2,12 +2,12 @@
 
 | ID  | Story                  | Status |
 | --- | ---------------------- | ------ |
-| 01  | Project Bootstrap      |        |
-| 02  | CI Setup               |        |
-| 03  | Lint & Format          |        |
-| 04  | Test Stack             |        |
-| 05  | Build Output           |        |
-| 06  | Core Model (MVC)       |        |
+| 01  | Project Bootstrap      | X      |
+| 02  | CI Setup               | X      |
+| 03  | Lint & Format          | X      |
+| 04  | Test Stack             | X      |
+| 05  | Build Output           | X      |
+| 06  | Core Model (MVC)       | X      |
 | 07  | Render Playfield       |        |
 | 08  | Random Bag Generator   |        |
 | 09  | Spawn Piece            |        |
