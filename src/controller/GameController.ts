@@ -243,16 +243,13 @@ export class GameController {
     const finalY = this.state.activePiece.position.y;
     dropDistance = finalY - startY;
 
+    // Stop lock delay system and gravity before immediate lock
+    this.lockDelaySystem.stop();
+    this.gravitySystem.stop();
+
     // Lock the piece immediately (bypass lock delay)
+    // Note: lockPiece() will spawn next piece and restart gravity
     this.lockPiece();
-
-    // Spawn next piece
-    this.spawnNextPiece();
-
-    // Restart gravity if game is still playing
-    if (this.state.status === GameStatus.Playing) {
-      this.gravitySystem.start();
-    }
 
     return dropDistance;
   }
