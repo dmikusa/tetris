@@ -188,6 +188,65 @@ export class GameController {
   }
 
   /**
+   * Starts soft drop - accelerated downward movement
+   * The piece falls faster while soft drop is active
+   */
+  softDropStart(): void {
+    if (!this.state.activePiece || this.state.status !== GameStatus.Playing) {
+      return;
+    }
+
+    // Move down immediately
+    this.moveDown();
+  }
+
+  /**
+   * Ends soft drop - returns to normal gravity speed
+   */
+  softDropEnd(): void {
+    // Soft drop end is handled by gravity system
+    // No action needed here currently
+  }
+
+  /**
+   * Hard drop - instantly drops the piece to the lowest valid position and locks it
+   * @returns The number of rows dropped (for scoring)
+   */
+  hardDrop(): number {
+    if (!this.state.activePiece || this.state.status !== GameStatus.Playing) {
+      return 0;
+    }
+
+    const startY = this.state.activePiece.position.y;
+    let dropDistance = 0;
+
+    // Keep moving down until we can't anymore
+    while (this.moveDown()) {
+      dropDistance++;
+    }
+
+    // Calculate actual drop distance (difference in position)
+    const finalY = this.state.activePiece.position.y;
+    dropDistance = startY - finalY;
+
+    // Lock the piece immediately (bypass lock delay)
+    this.lockPiece();
+
+    // Spawn next piece
+    this.spawnNextPiece();
+
+    // Restart gravity if game is still playing
+    if (this.state.status === GameStatus.Playing) {
+      this.gravitySystem.start();
+    }
+
+    return dropDistance;
+  }
+
+  /**
+   * Locks the active piece into the playfield matrix
+   */
+  /**
    * Locks the current piece into the playfield matrix
    */
   private lockPiece(): void {

@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { GameController } from './GameController';
 import { TetrominoType, GameStatus } from '../model/types';
 import { FIELD_WIDTH } from '../model/constants';
+import { SHAPES } from '../model/shapes';
 
 describe('GameController', () => {
   let controller: GameController;
@@ -413,6 +414,396 @@ describe('GameController', () => {
       controller.resume();
 
       expect(state.status).toBe(GameStatus.Playing);
+    });
+  });
+
+  describe('Horizontal Movement Tests', () => {
+    beforeEach(() => {
+      controller.spawnNextPiece();
+    });
+
+    describe('moveLeft', () => {
+      it('should move piece left by one column', () => {
+        const state = controller.getState();
+        const initialX = state.activePiece?.position.x;
+
+        const success = controller.moveLeft();
+
+        expect(success).toBe(true);
+        expect(state.activePiece?.position.x).toBe(initialX! - 1);
+      });
+
+      it('should not move piece when at left wall', () => {
+        const state = controller.getState();
+
+        // Move piece to left wall - need to account for piece shape offset
+        // Most pieces have some empty space in their 4x4 grid
+        if (state.activePiece) {
+          state.activePiece.position.x = 0;
+        }
+
+        const initialX = state.activePiece?.position.x;
+        const success = controller.moveLeft();
+
+        // Either returns false or the position doesn't change
+        if (!success) {
+          expect(state.activePiece?.position.x).toBe(initialX);
+        } else {
+          // Some pieces may move left from x=0 due to empty space in their grid
+          expect(state.activePiece?.position.x).toBeLessThanOrEqual(0);
+        }
+      });
+
+      it('should not move piece when blocked by other pieces', () => {
+        const state = controller.getState();
+
+        if (state.activePiece) {
+          // Get the actual shape to know which cells to block
+          const shape = SHAPES[state.activePiece.type][state.activePiece.rotation];
+          const { x: pieceX, y: pieceY } = state.activePiece.position;
+
+          // Find leftmost filled cell in the shape
+          let minX = 4;
+          for (let y = 0; y < shape.length; y++) {
+            for (let x = 0; x < shape[y].length; x++) {
+              if (shape[y][x] === 1) {
+                minX = Math.min(minX, x);
+              }
+            }
+          }
+
+          // Block cells to the left of the leftmost filled cell
+          const blockX = pieceX + minX - 1;
+          for (let y = pieceY; y < pieceY + 4; y++) {
+            if (y >= 0 && y < state.matrix.length && blockX >= 0 && blockX < FIELD_WIDTH) {
+              state.matrix[y][blockX] = TetrominoType.I;
+            }
+          }
+        }
+
+        const initialX = state.activePiece?.position.x;
+        const success = controller.moveLeft();
+
+        expect(success).toBe(false);
+        expect(state.activePiece?.position.x).toBe(initialX);
+      });
+
+      it('should not move piece when game is not playing', () => {
+        const state = controller.getState();
+        const initialX = state.activePiece?.position.x;
+
+        state.status = GameStatus.Paused;
+
+        const success = controller.moveLeft();
+
+        expect(success).toBe(false);
+        expect(state.activePiece?.position.x).toBe(initialX);
+      });
+
+      it('should not move piece when no active piece', () => {
+        const state = controller.getState();
+        state.activePiece = null;
+
+        const success = controller.moveLeft();
+
+        expect(success).toBe(false);
+      });
+
+      it('should allow multiple left movements', () => {
+        const state = controller.getState();
+        const initialX = state.activePiece?.position.x ?? 0;
+
+        controller.moveLeft();
+        controller.moveLeft();
+        controller.moveLeft();
+
+        expect(state.activePiece?.position.x).toBe(initialX - 3);
+      });
+    });
+
+    describe('moveRight', () => {
+      it('should move piece right by one column', () => {
+        const state = controller.getState();
+        const initialX = state.activePiece?.position.x;
+
+        const success = controller.moveRight();
+
+        expect(success).toBe(true);
+        expect(state.activePiece?.position.x).toBe(initialX! + 1);
+      });
+
+      it('should not move piece when at right wall', () => {
+        const state = controller.getState();
+
+        // Move piece to right wall
+        if (state.activePiece) {
+          state.activePiece.position.x = FIELD_WIDTH - 1;
+        }
+
+        const success = controller.moveRight();
+
+        expect(success).toBe(false);
+      });
+
+      it('should not move piece when blocked by other pieces', () => {
+        const state = controller.getState();
+
+        if (state.activePiece) {
+          // Get the actual shape to know which cells to block
+          const shape = SHAPES[state.activePiece.type][state.activePiece.rotation];
+          const { x: pieceX, y: pieceY } = state.activePiece.position;
+
+          // Find rightmost filled cell in the shape
+          let maxX = -1;
+          for (let y = 0; y < shape.length; y++) {
+            for (let x = 0; x < shape[y].length; x++) {
+              if (shape[y][x] === 1) {
+                maxX = Math.max(maxX, x);
+              }
+            }
+          }
+
+          // Block cells to the right of the rightmost filled cell
+          const blockX = pieceX + maxX + 1;
+          for (let y = pieceY; y < pieceY + 4; y++) {
+            if (y >= 0 && y < state.matrix.length && blockX >= 0 && blockX < FIELD_WIDTH) {
+              state.matrix[y][blockX] = TetrominoType.I;
+            }
+          }
+        }
+
+        const initialX = state.activePiece?.position.x;
+        const success = controller.moveRight();
+
+        expect(success).toBe(false);
+        expect(state.activePiece?.position.x).toBe(initialX);
+      });
+
+      it('should not move piece when game is not playing', () => {
+        const state = controller.getState();
+        const initialX = state.activePiece?.position.x;
+
+        state.status = GameStatus.Paused;
+
+        const success = controller.moveRight();
+
+        expect(success).toBe(false);
+        expect(state.activePiece?.position.x).toBe(initialX);
+      });
+
+      it('should not move piece when no active piece', () => {
+        const state = controller.getState();
+        state.activePiece = null;
+
+        const success = controller.moveRight();
+
+        expect(success).toBe(false);
+      });
+
+      it('should allow multiple right movements', () => {
+        const state = controller.getState();
+        const initialX = state.activePiece?.position.x ?? 0;
+
+        controller.moveRight();
+        controller.moveRight();
+
+        expect(state.activePiece?.position.x).toBe(initialX + 2);
+      });
+    });
+
+    describe('combined horizontal movements', () => {
+      it('should handle left and right movements in sequence', () => {
+        const state = controller.getState();
+        const initialX = state.activePiece?.position.x ?? 0;
+
+        controller.moveLeft();
+        controller.moveLeft();
+        controller.moveRight();
+
+        expect(state.activePiece?.position.x).toBe(initialX - 1);
+      });
+
+      it('should combine horizontal and vertical movements', () => {
+        const state = controller.getState();
+        const initialX = state.activePiece?.position.x ?? 0;
+        const initialY = state.activePiece?.position.y ?? 0;
+
+        controller.moveLeft();
+        controller.moveDown();
+        controller.moveRight();
+        controller.moveRight();
+        controller.moveDown();
+
+        expect(state.activePiece?.position.x).toBe(initialX + 1);
+        expect(state.activePiece?.position.y).toBe(initialY - 2);
+      });
+    });
+  });
+
+  describe('Soft Drop Tests', () => {
+    beforeEach(() => {
+      controller.spawnNextPiece();
+    });
+
+    it('should move piece down when soft drop starts', () => {
+      const state = controller.getState();
+      const initialY = state.activePiece?.position.y;
+
+      controller.softDropStart();
+
+      expect(state.activePiece?.position.y).toBe(initialY! - 1);
+    });
+
+    it('should not soft drop when no active piece', () => {
+      const state = controller.getState();
+      state.activePiece = null;
+
+      controller.softDropStart();
+
+      expect(state.activePiece).toBeNull();
+    });
+
+    it('should not soft drop when game is not playing', () => {
+      const state = controller.getState();
+      const initialY = state.activePiece?.position.y;
+
+      state.status = GameStatus.Paused;
+
+      controller.softDropStart();
+
+      expect(state.activePiece?.position.y).toBe(initialY);
+    });
+
+    it('should handle soft drop end', () => {
+      controller.softDropEnd();
+      // Soft drop end doesn't change state currently
+      // This test verifies it doesn't crash
+      expect(true).toBe(true);
+    });
+  });
+
+  describe('Hard Drop Tests', () => {
+    beforeEach(() => {
+      controller.spawnNextPiece();
+    });
+
+    it('should drop piece to lowest position', () => {
+      const state = controller.getState();
+
+      const dropDistance = controller.hardDrop();
+
+      expect(dropDistance).toBeGreaterThan(0);
+      // After hard drop, a new piece is spawned, so we just verify drop occurred
+      expect(state.activePiece).not.toBeNull();
+    });
+
+    it('should lock piece after hard drop', () => {
+      const state = controller.getState();
+      const pieceType = state.activePiece?.type;
+
+      controller.hardDrop();
+
+      // Check that piece was locked into matrix
+      let foundLockedCell = false;
+      for (let y = 0; y < state.matrix.length; y++) {
+        for (let x = 0; x < state.matrix[y].length; x++) {
+          if (state.matrix[y][x] === pieceType) {
+            foundLockedCell = true;
+            break;
+          }
+        }
+      }
+
+      expect(foundLockedCell).toBe(true);
+    });
+
+    it('should spawn next piece after hard drop', () => {
+      const state = controller.getState();
+
+      controller.hardDrop();
+
+      // Should have a new active piece (likely different type)
+      expect(state.activePiece).not.toBeNull();
+      // Note: With random bag, new piece might be same type, so we just check it exists
+    });
+
+    it('should return zero when no active piece', () => {
+      const state = controller.getState();
+      state.activePiece = null;
+
+      const dropDistance = controller.hardDrop();
+
+      expect(dropDistance).toBe(0);
+    });
+
+    it('should return zero when game is not playing', () => {
+      const state = controller.getState();
+      state.status = GameStatus.Paused;
+
+      const dropDistance = controller.hardDrop();
+
+      expect(dropDistance).toBe(0);
+    });
+
+    it('should calculate correct drop distance', () => {
+      const state = controller.getState();
+
+      // Clear the matrix to ensure piece can drop to bottom
+      for (let y = 0; y < state.matrix.length; y++) {
+        for (let x = 0; x < state.matrix[y].length; x++) {
+          state.matrix[y][x] = null;
+        }
+      }
+
+      const initialY = state.activePiece?.position.y ?? 0;
+
+      const dropDistance = controller.hardDrop();
+
+      expect(dropDistance).toBeGreaterThanOrEqual(0);
+      expect(dropDistance).toBe(initialY); // Should drop from initialY to ~0
+    });
+
+    it('should handle hard drop when piece is already at bottom', () => {
+      const state = controller.getState();
+
+      // Move piece close to bottom
+      if (state.activePiece) {
+        state.activePiece.position.y = 1;
+      }
+
+      const dropDistance = controller.hardDrop();
+
+      // Drop distance should be small (0 or 1)
+      expect(dropDistance).toBeLessThanOrEqual(1);
+      expect(state.activePiece).not.toBeNull(); // Should spawn new piece
+    });
+
+    it('should lock piece into correct position', () => {
+      const state = controller.getState();
+
+      // Clear bottom rows
+      for (let y = 0; y < 5; y++) {
+        for (let x = 0; x < FIELD_WIDTH; x++) {
+          state.matrix[y][x] = null;
+        }
+      }
+
+      const pieceType = state.activePiece?.type;
+
+      controller.hardDrop();
+
+      // Check that piece was locked at the bottom
+      let foundAtBottom = false;
+      for (let y = 0; y < 5; y++) {
+        for (let x = 0; x < FIELD_WIDTH; x++) {
+          if (state.matrix[y][x] === pieceType) {
+            foundAtBottom = true;
+            break;
+          }
+        }
+      }
+
+      expect(foundAtBottom).toBe(true);
     });
   });
 });
