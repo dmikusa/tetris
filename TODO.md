@@ -16,12 +16,12 @@
 | 12  | Desktop Controls       | X      |
 | 13  | Rotation (SRS)         | X      |
 | 14  | Line Clear             | X      |
-| 15  | Scoring & Levels       |        |
+| 15  | Scoring & Levels       | X      |
 | 16  | Colors & Rendering     |        |
-| 17  | Next Queue             |        |
+| 17  | Next Queue             | X      |
 | 18  | Hold Piece             |        |
 | 19  | Ghost Piece            |        |
-| 20  | Top-Out Rules          |        |
+| 20  | Top-Out Rules          | X      |
 | 21  | Mobile Controls        |        |
 | 22  | Logo & Branding        | IP     |
 | 23  | Responsive Layout      |        |

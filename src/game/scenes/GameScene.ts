@@ -31,6 +31,9 @@ export class GameScene extends Phaser.Scene {
   private scoreText?: Phaser.GameObjects.Text;
   private levelText?: Phaser.GameObjects.Text;
   private linesText?: Phaser.GameObjects.Text;
+  private nextQueueContainer?: Phaser.GameObjects.Container;
+  private readonly NEXT_PREVIEW_COUNT = 1;
+  private readonly NEXT_CELL_SIZE = 20; // Smaller cells for preview
 
   constructor() {
     super({ key: 'GameScene' });
@@ -79,6 +82,9 @@ export class GameScene extends Phaser.Scene {
 
     // Create game info display (score, level, lines)
     this.createGameInfo();
+
+    // Create next queue preview
+    this.createNextQueue();
 
     // Create game over overlay (initially hidden)
     this.createGameOverOverlay();
@@ -137,6 +143,9 @@ export class GameScene extends Phaser.Scene {
     if (this.linesText) {
       this.linesText.setText(`${state.linesCleared}`);
     }
+
+    // Update next queue preview
+    this.renderNextQueue();
 
     // Show/hide game over overlay based on game state
     if (this.gameOverOverlay) {
@@ -274,6 +283,105 @@ export class GameScene extends Phaser.Scene {
       fontStyle: 'bold',
     });
     this.linesText.setOrigin(0.5, 0.5); // Center the text
+  }
+
+  /**
+   * Creates the container for the next queue preview
+   */
+  private createNextQueue(): void {
+    // Position for NEXT box (top right based on background image)
+    // Positioned to center vertically in the empty area below the "NEXT" label
+    const nextBoxX = 855;
+    const nextBoxY = 210;
+
+    // Create container for all next queue pieces
+    this.nextQueueContainer = this.add.container(nextBoxX, nextBoxY);
+  }
+
+  /**
+   * Renders the next queue preview showing upcoming pieces
+   */
+  private renderNextQueue(): void {
+    if (!this.nextQueueContainer) {
+      return;
+    }
+
+    // Clear previous preview
+    this.nextQueueContainer.removeAll(true);
+
+    // Get next pieces from game controller
+    const nextPieces = this.gameController.getNextPieces(this.NEXT_PREVIEW_COUNT);
+
+    // Render each piece in the queue
+    nextPieces.forEach((pieceType, index) => {
+      this.renderNextPiece(pieceType, index);
+    });
+  }
+
+  /**
+   * Renders a single piece in the next queue
+   * @param pieceType - The type of piece to render
+   * @param index - Position in the queue (0 = next, 1 = second, etc.)
+   */
+  private renderNextPiece(pieceType: TetrominoType, index: number): void {
+    if (!this.nextQueueContainer) {
+      return;
+    }
+
+    // Get the shape for rotation 0 (spawn orientation)
+    const shape = SHAPES[pieceType][0];
+    const colorHex = COLORS[pieceType];
+    const color = parseInt(colorHex.replace('#', ''), 16);
+
+    // Calculate vertical offset for this piece (stack them vertically)
+    const verticalSpacing = 60; // Space between pieces
+    const yOffset = index * verticalSpacing;
+
+    // Find the bounds of the piece to center it
+    let minX = 4,
+      maxX = 0,
+      minY = 4,
+      maxY = 0;
+    for (let y = 0; y < shape.length; y++) {
+      for (let x = 0; x < shape[y].length; x++) {
+        if (shape[y][x] === 1) {
+          minX = Math.min(minX, x);
+          maxX = Math.max(maxX, x);
+          minY = Math.min(minY, y);
+          maxY = Math.max(maxY, y);
+        }
+      }
+    }
+
+    // Calculate centering offset
+    const pieceWidth = (maxX - minX + 1) * this.NEXT_CELL_SIZE;
+    const pieceHeight = (maxY - minY + 1) * this.NEXT_CELL_SIZE;
+    const centerOffsetX = -pieceWidth / 2;
+    const centerOffsetY = -pieceHeight / 2;
+
+    // Render each mino of the piece
+    for (let y = 0; y < shape.length; y++) {
+      for (let x = 0; x < shape[y].length; x++) {
+        if (shape[y][x] === 1) {
+          const graphics = this.add.graphics();
+
+          // Position relative to piece bounds
+          const cellX = (x - minX) * this.NEXT_CELL_SIZE + centerOffsetX;
+          const cellY = (y - minY) * this.NEXT_CELL_SIZE + centerOffsetY + yOffset;
+
+          // Draw filled cell
+          graphics.fillStyle(color, 1);
+          graphics.fillRect(cellX, cellY, this.NEXT_CELL_SIZE, this.NEXT_CELL_SIZE);
+
+          // Draw border
+          graphics.lineStyle(1, GRID_LINE_COLOR, 1);
+          graphics.strokeRect(cellX, cellY, this.NEXT_CELL_SIZE, this.NEXT_CELL_SIZE);
+
+          // Add to next queue container
+          this.nextQueueContainer.add(graphics);
+        }
+      }
+    }
   }
 
   /**

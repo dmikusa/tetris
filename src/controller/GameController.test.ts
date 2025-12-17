@@ -119,6 +119,68 @@ describe('GameController', () => {
     });
   });
 
+  describe('Next Queue Preview', () => {
+    it('should return requested number of next pieces', () => {
+      const nextPieces = controller.getNextPieces(3);
+      expect(nextPieces).toBeDefined();
+      expect(nextPieces.length).toBe(3);
+    });
+
+    it('should return pieces without consuming them', () => {
+      const firstPeek = controller.getNextPieces(3);
+      const secondPeek = controller.getNextPieces(3);
+
+      expect(firstPeek).toEqual(secondPeek);
+    });
+
+    it('should show actual next piece that will spawn', () => {
+      const nextPieces = controller.getNextPieces(1);
+      controller.spawnNextPiece();
+      const state = controller.getState();
+
+      expect(state.activePiece?.type).toBe(nextPieces[0]);
+    });
+
+    it('should update queue after piece is spawned', () => {
+      const beforeSpawn = controller.getNextPieces(3);
+      controller.spawnNextPiece();
+      const afterSpawn = controller.getNextPieces(3);
+
+      // Second piece before spawn should be first piece after spawn
+      expect(afterSpawn[0]).toBe(beforeSpawn[1]);
+      expect(afterSpawn[1]).toBe(beforeSpawn[2]);
+    });
+
+    it('should handle different preview counts', () => {
+      expect(controller.getNextPieces(1).length).toBe(1);
+      expect(controller.getNextPieces(3).length).toBe(3);
+      expect(controller.getNextPieces(6).length).toBe(6);
+    });
+
+    it('should default to 3 pieces when count not specified', () => {
+      const nextPieces = controller.getNextPieces();
+      expect(nextPieces.length).toBe(3);
+    });
+
+    it('should return valid tetromino types', () => {
+      const nextPieces = controller.getNextPieces(7);
+      const validTypes = Object.values(TetrominoType);
+
+      nextPieces.forEach((piece) => {
+        expect(validTypes).toContain(piece);
+      });
+    });
+
+    it('should maintain synchronization across multiple spawns', () => {
+      for (let i = 0; i < 5; i++) {
+        const nextPiece = controller.getNextPieces(1)[0];
+        controller.spawnNextPiece();
+        const state = controller.getState();
+        expect(state.activePiece?.type).toBe(nextPiece);
+      }
+    });
+  });
+
   describe('Initial Drop Test', () => {
     it('should move piece down one row immediately after spawn', () => {
       controller.spawnNextPiece();
