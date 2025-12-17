@@ -94,6 +94,10 @@ export class GameScene extends Phaser.Scene {
         onHardDrop: () => this.gameController.hardDrop(),
         onRotateClockwise: () => this.gameController.rotateClockwise(),
         onRotateCounterclockwise: () => this.gameController.rotateCounterclockwise(),
+        onRestart: () => {
+          this.highScoreSaved = false; // Reset flag for new game
+          this.gameController.startGame();
+        },
       });
       this.touchController.start();
     }
@@ -197,6 +201,11 @@ export class GameScene extends Phaser.Scene {
     // Show/hide game over overlay based on game state
     if (this.gameOverOverlay) {
       this.gameOverOverlay.setVisible(state.isGameOver);
+
+      // Update touch controller game over state
+      if (this.touchController) {
+        this.touchController.setGameOver(state.isGameOver);
+      }
 
       // Update stats and handle high score if game is over
       if (state.isGameOver && this.statsText) {
@@ -496,8 +505,12 @@ export class GameScene extends Phaser.Scene {
     this.statsText.setOrigin(0.5);
     this.gameOverOverlay.add(this.statsText);
 
-    // Restart instructions
-    this.restartText = this.add.text(centerX, centerY + 100, 'Press SPACE to restart', {
+    // Restart instructions - different for touch vs keyboard
+    const isTouchDevice = TouchController.isTouchDevice();
+    const restartMessage = isTouchDevice
+      ? 'Swipe in any direction to restart'
+      : 'Press SPACE to restart';
+    this.restartText = this.add.text(centerX, centerY + 100, restartMessage, {
       fontFamily: 'Arial',
       fontSize: '24px',
       color: '#ffff00',
