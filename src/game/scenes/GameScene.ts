@@ -28,6 +28,9 @@ export class GameScene extends Phaser.Scene {
   private gameOverText?: Phaser.GameObjects.Text;
   private statsText?: Phaser.GameObjects.Text;
   private restartText?: Phaser.GameObjects.Text;
+  private scoreText?: Phaser.GameObjects.Text;
+  private levelText?: Phaser.GameObjects.Text;
+  private linesText?: Phaser.GameObjects.Text;
 
   constructor() {
     super({ key: 'GameScene' });
@@ -73,6 +76,9 @@ export class GameScene extends Phaser.Scene {
 
     // Start the game
     this.gameController.startGame();
+
+    // Create game info display (score, level, lines)
+    this.createGameInfo();
 
     // Create game over overlay (initially hidden)
     this.createGameOverOverlay();
@@ -120,6 +126,17 @@ export class GameScene extends Phaser.Scene {
 
     // Render the playfield
     this.renderState(state);
+
+    // Update game info display
+    if (this.scoreText) {
+      this.scoreText.setText(`${state.score}`);
+    }
+    if (this.levelText) {
+      this.levelText.setText(`${state.level}`);
+    }
+    if (this.linesText) {
+      this.linesText.setText(`${state.linesCleared}`);
+    }
 
     // Show/hide game over overlay based on game state
     if (this.gameOverOverlay) {
@@ -222,6 +239,41 @@ export class GameScene extends Phaser.Scene {
     // Draw border
     graphics.lineStyle(GRID_LINE_WIDTH, GRID_LINE_COLOR, 1);
     graphics.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
+  }
+
+  /**
+   * Creates the game info display showing score, level, and lines
+   */
+  private createGameInfo(): void {
+    // Position text in the UI boxes visible in the background image
+    // Coordinates are based on the arcade_bg_1024x768.png layout
+
+    // HIGH SCORE box (top left) - content area center
+    this.scoreText = this.add.text(170, 210, '0', {
+      fontFamily: 'Arial',
+      fontSize: '28px',
+      color: '#ffffff',
+      fontStyle: 'bold',
+    });
+    this.scoreText.setOrigin(0.5, 0.5); // Center the text
+
+    // LEVEL box (bottom left) - content area center
+    this.levelText = this.add.text(170, 355, '1', {
+      fontFamily: 'Arial',
+      fontSize: '28px',
+      color: '#ffffff',
+      fontStyle: 'bold',
+    });
+    this.levelText.setOrigin(0.5, 0.5); // Center the text
+
+    // LINES box (bottom right) - content area center
+    this.linesText = this.add.text(855, 355, '0', {
+      fontFamily: 'Arial',
+      fontSize: '28px',
+      color: '#ffffff',
+      fontStyle: 'bold',
+    });
+    this.linesText.setOrigin(0.5, 0.5); // Center the text
   }
 
   /**
