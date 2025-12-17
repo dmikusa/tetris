@@ -27,3 +27,5 @@
 | 23  | Responsive Layout      |        |
 | 24  | Docs & README          |        |
 | 25  | Type-Check Strict      |        |
+| 26  | Pause Feature          | X      |
+| 27  | High Scores            |        |
