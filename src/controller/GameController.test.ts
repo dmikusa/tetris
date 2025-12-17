@@ -49,7 +49,7 @@ describe('GameController', () => {
 
         if (state.activePiece?.type === TetrominoType.I) {
           expect(state.activePiece.position.x).toBe(3);
-          expect(state.activePiece.position.y).toBe(22); // 21 + 1 (after initial drop)
+          expect(state.activePiece.position.y).toBe(20); // 19 + 1 (after initial drop)
           iPieceFound = true;
           break;
         }
@@ -69,7 +69,7 @@ describe('GameController', () => {
 
         if (state.activePiece?.type === TetrominoType.O) {
           expect(state.activePiece.position.x).toBe(4);
-          expect(state.activePiece.position.y).toBe(22); // 21 + 1
+          expect(state.activePiece.position.y).toBe(20); // 19 + 1
           oPieceFound = true;
           break;
         }
@@ -96,7 +96,7 @@ describe('GameController', () => {
 
         if (state.activePiece && leftRoundedPieces.includes(state.activePiece.type)) {
           expect(state.activePiece.position.x).toBe(3);
-          expect(state.activePiece.position.y).toBe(22); // 21 + 1
+          expect(state.activePiece.position.y).toBe(20); // 19 + 1
           foundPieces.add(state.activePiece.type);
         }
       }
@@ -186,8 +186,8 @@ describe('GameController', () => {
       controller.spawnNextPiece();
       const state = controller.getState();
 
-      // Piece should be at y=22 (spawned at 21, dropped to 22)
-      expect(state.activePiece?.position.y).toBe(22);
+      // Piece should be at y=20 (spawned at 19, dropped to 20)
+      expect(state.activePiece?.position.y).toBe(20);
     });
   });
 
@@ -242,7 +242,7 @@ describe('GameController', () => {
 
       // Block spawn position
       for (let x = 0; x < FIELD_WIDTH; x++) {
-        state.matrix[21][x] = TetrominoType.O;
+        state.matrix[19][x] = TetrominoType.O;
       }
 
       const success = controller.spawnNextPiece();

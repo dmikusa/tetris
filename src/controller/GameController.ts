@@ -13,15 +13,18 @@ import { LevelSystem } from './LevelSystem';
 /**
  * Spawn positions for each tetromino type
  * Based on Tetris guideline specification
+ * Buffer zone is rows 0-19, visible area is rows 20-39
+ * Y position set to 19 to account for immediate +1 drop in spawnNextPiece()
+ * This ensures filled blocks appear at row 20 (top of visible area) after spawn
  */
 const SPAWN_POSITIONS: Record<TetrominoType, { x: number; y: number }> = {
-  [TetrominoType.I]: { x: 3, y: 21 }, // Centered (4-wide piece)
-  [TetrominoType.O]: { x: 4, y: 21 }, // Centered (2-wide piece)
-  [TetrominoType.T]: { x: 3, y: 21 }, // Rounded left (3-wide)
-  [TetrominoType.S]: { x: 3, y: 21 }, // Rounded left (3-wide)
-  [TetrominoType.Z]: { x: 3, y: 21 }, // Rounded left (3-wide)
-  [TetrominoType.J]: { x: 3, y: 21 }, // Rounded left (3-wide)
-  [TetrominoType.L]: { x: 3, y: 21 }, // Rounded left (3-wide)
+  [TetrominoType.I]: { x: 3, y: 19 }, // Centered (4-wide), spawns at 19, drops to 20, renders filled row at 21
+  [TetrominoType.O]: { x: 4, y: 19 }, // Centered (2-wide)
+  [TetrominoType.T]: { x: 3, y: 19 }, // Rounded left (3-wide)
+  [TetrominoType.S]: { x: 3, y: 19 }, // Rounded left (3-wide)
+  [TetrominoType.Z]: { x: 3, y: 19 }, // Rounded left (3-wide)
+  [TetrominoType.J]: { x: 3, y: 19 }, // Rounded left (3-wide)
+  [TetrominoType.L]: { x: 3, y: 19 }, // Rounded left (3-wide)
 };
 
 /**
