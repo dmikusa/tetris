@@ -7,6 +7,8 @@ import { CollisionDetector } from './CollisionDetector';
 import { LockDelaySystem } from './LockDelaySystem';
 import { RotationSystem } from './RotationSystem';
 import { LineClearSystem } from './LineClearSystem';
+import { ScoringSystem } from './ScoringSystem';
+import { LevelSystem } from './LevelSystem';
 
 /**
  * Spawn positions for each tetromino type
@@ -34,6 +36,9 @@ export class GameController {
   private lockDelaySystem: LockDelaySystem;
   private rotationSystem: RotationSystem;
   private lineClearSystem: LineClearSystem;
+  private scoringSystem: ScoringSystem;
+  private levelSystem: LevelSystem;
+  private isSoftDropping = false;
 
   /**
    * Creates a new game controller
@@ -47,6 +52,8 @@ export class GameController {
     this.gravitySystem = new GravitySystem(this.state.level, () => this.moveDown());
     this.rotationSystem = new RotationSystem();
     this.lineClearSystem = new LineClearSystem();
+    this.scoringSystem = new ScoringSystem();
+    this.levelSystem = new LevelSystem();
   }
 
   /**
@@ -141,6 +148,13 @@ export class GameController {
     // Move is valid, update position
     this.state.activePiece.position.y++;
 
+    // Award soft drop bonus if player is soft dropping
+    if (this.isSoftDropping) {
+      const bonus = this.scoringSystem.calculateSoftDropBonus(1);
+      this.scoringSystem.addScore(bonus);
+      this.state.score = this.scoringSystem.getScore();
+    }
+
     // Reset lock delay if piece was on ground and moved down (step reset)
     if (this.lockDelaySystem.isLockDelayActive()) {
       this.lockDelaySystem.reset(true);
@@ -210,6 +224,9 @@ export class GameController {
       return;
     }
 
+    // Set soft drop flag to award bonus points
+    this.isSoftDropping = true;
+
     // Move down immediately
     this.moveDown();
   }
@@ -218,8 +235,8 @@ export class GameController {
    * Ends soft drop - returns to normal gravity speed
    */
   softDropEnd(): void {
-    // Soft drop end is handled by gravity system
-    // No action needed here currently
+    // Clear soft drop flag
+    this.isSoftDropping = false;
   }
 
   /**
@@ -242,6 +259,13 @@ export class GameController {
     // Calculate actual drop distance (difference in position)
     const finalY = this.state.activePiece.position.y;
     dropDistance = finalY - startY;
+
+    // Add hard drop bonus (2 points per cell)
+    if (dropDistance > 0) {
+      const bonus = this.scoringSystem.calculateHardDropBonus(dropDistance);
+      this.scoringSystem.addScore(bonus);
+      this.state.score = this.scoringSystem.getScore();
+    }
 
     // Stop lock delay system and gravity before immediate lock
     this.lockDelaySystem.stop();
@@ -351,9 +375,23 @@ export class GameController {
     const affectedRows = this.lineClearSystem.getAffectedRows(piece.position.y, 4);
     const clearResult = this.lineClearSystem.checkAndClearLines(this.state.matrix, affectedRows);
 
-    // Update total lines cleared count
+    // Update score and level if lines were cleared
     if (clearResult.linesCleared > 0) {
+      // Calculate and add score
+      const points = this.scoringSystem.calculateScore(clearResult.linesCleared, this.state.level);
+      this.scoringSystem.addScore(points);
+      this.state.score = this.scoringSystem.getScore();
+
+      // Update lines cleared count
       this.state.linesCleared += clearResult.linesCleared;
+
+      // Check for level up
+      const leveledUp = this.levelSystem.addLines(clearResult.linesCleared);
+      if (leveledUp) {
+        this.state.level = this.levelSystem.getCurrentLevel();
+        // Update gravity speed for new level
+        this.gravitySystem.setLevel(this.state.level);
+      }
     }
 
     // Spawn next piece
@@ -390,6 +428,10 @@ export class GameController {
         this.state.matrix[y][x] = null;
       }
     }
+
+    // Reset scoring and level systems
+    this.scoringSystem.reset();
+    this.levelSystem.reset();
 
     // Reset game state properties
     this.state.activePiece = null;
