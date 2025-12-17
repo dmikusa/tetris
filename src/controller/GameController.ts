@@ -64,6 +64,15 @@ export class GameController {
   }
 
   /**
+   * Gets the next N pieces from the piece bag without consuming them
+   * @param count - Number of pieces to preview (default: 3)
+   * @returns Array of upcoming piece types
+   */
+  getNextPieces(count = 3): TetrominoType[] {
+    return this.pieceBag.peek(count);
+  }
+
+  /**
    * Creates the initial game state
    */
   private createInitialState(): GameState {
