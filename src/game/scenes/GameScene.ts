@@ -3,6 +3,7 @@ import { FIELD_WIDTH, FIELD_VISIBLE_HEIGHT, FIELD_TOTAL_HEIGHT } from '../../mod
 import { TetrominoType } from '../../model/types';
 import { GameController } from '../../controller/GameController';
 import { InputController } from '../../controller/InputController';
+import { TouchController } from '../../controller/TouchController';
 import { HighScoreManager } from '../../controller/HighScoreManager';
 import { COLORS } from '../../model/colors';
 import { SHAPES } from '../../model/shapes';
@@ -24,6 +25,7 @@ export class GameScene extends Phaser.Scene {
   private cellGraphics: Phaser.GameObjects.Graphics[][] = [];
   private gameController!: GameController;
   private inputController!: InputController;
+  private touchController?: TouchController;
   private background!: Phaser.GameObjects.Image;
   private gameOverOverlay?: Phaser.GameObjects.Container;
   private gameOverText?: Phaser.GameObjects.Text;
@@ -78,6 +80,23 @@ export class GameScene extends Phaser.Scene {
       onRotateCounterclockwise: () => this.gameController.rotateCounterclockwise(),
       onPause: () => this.togglePause(),
     });
+
+    // Initialize touch controller if on a touch device
+    if (TouchController.isTouchDevice()) {
+      this.touchController = new TouchController({
+        onMoveLeft: () => this.gameController.moveLeft(),
+        onMoveRight: () => this.gameController.moveRight(),
+        onSoftDrop: () => {
+          this.gameController.softDropStart();
+          // Keep soft drop active for a short duration
+          setTimeout(() => this.gameController.softDropEnd(), 100);
+        },
+        onHardDrop: () => this.gameController.hardDrop(),
+        onRotateClockwise: () => this.gameController.rotateClockwise(),
+        onRotateCounterclockwise: () => this.gameController.rotateCounterclockwise(),
+      });
+      this.touchController.start();
+    }
 
     // Start input handling
     this.inputController.start();
@@ -607,6 +626,9 @@ export class GameScene extends Phaser.Scene {
   shutdown(): void {
     if (this.inputController) {
       this.inputController.destroy();
+    }
+    if (this.touchController) {
+      this.touchController.destroy();
     }
   }
 }
