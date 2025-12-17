@@ -30,6 +30,7 @@ export interface TouchCallbacks {
   onHardDrop?: () => void;
   onRotateClockwise?: () => void;
   onRotateCounterclockwise?: () => void;
+  onRestart?: () => void; // For restarting on game over
 }
 
 /**
@@ -51,6 +52,7 @@ export class TouchController {
   private callbacks: TouchCallbacks;
   private isActive: boolean = false;
   private touchStates: Map<number, TouchState> = new Map();
+  private isGameOver: boolean = false;
 
   private touchstartHandler!: (event: TouchEvent) => void;
   private touchmoveHandler!: (event: TouchEvent) => void;
@@ -103,6 +105,13 @@ export class TouchController {
    */
   destroy(): void {
     this.stop();
+  }
+
+  /**
+   * Sets the game over state
+   */
+  setGameOver(isGameOver: boolean): void {
+    this.isGameOver = isGameOver;
   }
 
   /**
@@ -253,6 +262,20 @@ export class TouchController {
       return;
     }
 
+    // If game is over, any swipe gesture triggers restart
+    if (this.isGameOver) {
+      if (
+        gesture === TouchGesture.SwipeLeft ||
+        gesture === TouchGesture.SwipeRight ||
+        gesture === TouchGesture.SwipeUp ||
+        gesture === TouchGesture.SwipeDown
+      ) {
+        this.callbacks.onRestart?.();
+        return;
+      }
+    }
+
+    // Normal game gestures
     switch (gesture) {
       case TouchGesture.SwipeLeft:
         this.callbacks.onMoveLeft?.();
