@@ -18,38 +18,81 @@ describe('HighScoreManager', () => {
     });
 
     it('should return scores sorted by highest first', () => {
-      HighScoreManager.addScore(100);
-      HighScoreManager.addScore(300);
-      HighScoreManager.addScore(200);
+      HighScoreManager.addScore(100, 'AAA');
+      HighScoreManager.addScore(300, 'BBB');
+      HighScoreManager.addScore(200, 'CCC');
 
       const scores = HighScoreManager.getHighScores();
       expect(scores).toHaveLength(3);
       expect(scores[0].score).toBe(300);
+      expect(scores[0].initials).toBe('BBB');
       expect(scores[1].score).toBe(200);
+      expect(scores[1].initials).toBe('CCC');
       expect(scores[2].score).toBe(100);
+      expect(scores[2].initials).toBe('AAA');
     });
   });
 
   describe('addScore', () => {
     it('should add a score to empty list', () => {
-      const position = HighScoreManager.addScore(1000);
+      const position = HighScoreManager.addScore(1000, 'ABC');
 
       expect(position).toBe(1);
       const scores = HighScoreManager.getHighScores();
       expect(scores).toHaveLength(1);
       expect(scores[0].score).toBe(1000);
+      expect(scores[0].initials).toBe('ABC');
     });
 
     it('should add score and return correct position', () => {
-      HighScoreManager.addScore(1000);
-      HighScoreManager.addScore(3000);
-      const position = HighScoreManager.addScore(2000);
+      HighScoreManager.addScore(1000, 'XXX');
+      HighScoreManager.addScore(3000, 'YYY');
+      const position = HighScoreManager.addScore(2000, 'ZZZ');
 
       expect(position).toBe(2); // Should be second place
       const scores = HighScoreManager.getHighScores();
       expect(scores[0].score).toBe(3000);
+      expect(scores[0].initials).toBe('YYY');
       expect(scores[1].score).toBe(2000);
+      expect(scores[1].initials).toBe('ZZZ');
       expect(scores[2].score).toBe(1000);
+      expect(scores[2].initials).toBe('XXX');
+    });
+
+    it('should default to AAA when no initials provided', () => {
+      HighScoreManager.addScore(500);
+
+      const scores = HighScoreManager.getHighScores();
+      expect(scores[0].initials).toBe('AAA');
+    });
+
+    it('should uppercase initials', () => {
+      HighScoreManager.addScore(1000, 'abc');
+
+      const scores = HighScoreManager.getHighScores();
+      expect(scores[0].initials).toBe('ABC');
+    });
+
+    it('should trim initials to 3 characters', () => {
+      HighScoreManager.addScore(1000, 'ABCDEF');
+
+      const scores = HighScoreManager.getHighScores();
+      expect(scores[0].initials).toBe('ABC');
+    });
+
+    it('should pad initials shorter than 3 characters', () => {
+      HighScoreManager.addScore(1000, 'AB');
+
+      const scores = HighScoreManager.getHighScores();
+      expect(scores[0].initials).toBe('ABA');
+    });
+
+    it('should not add zero scores', () => {
+      const position = HighScoreManager.addScore(0, 'ZZZ');
+
+      expect(position).toBe(-1);
+      const scores = HighScoreManager.getHighScores();
+      expect(scores).toHaveLength(0);
     });
 
     it('should limit to maximum of 10 scores', () => {
@@ -93,6 +136,10 @@ describe('HighScoreManager', () => {
   describe('isHighScore', () => {
     it('should return true when list is empty', () => {
       expect(HighScoreManager.isHighScore(100)).toBe(true);
+    });
+
+    it('should return false for zero scores', () => {
+      expect(HighScoreManager.isHighScore(0)).toBe(false);
     });
 
     it('should return true when list has fewer than 10 scores', () => {

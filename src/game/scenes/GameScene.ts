@@ -183,8 +183,8 @@ export class GameScene extends Phaser.Scene {
       if (state.isGameOver && this.statsText) {
         // Check and save high score (only once per game over)
         if (!this.highScoreSaved && HighScoreManager.isHighScore(state.score)) {
-          HighScoreManager.addScore(state.score);
           this.highScoreSaved = true;
+          this.showInitialsEntry(state.score);
         }
 
         this.statsText.setText([
@@ -548,10 +548,13 @@ export class GameScene extends Phaser.Scene {
       // Check and save high score before quitting
       const state = this.gameController.getState();
       if (!this.highScoreSaved && HighScoreManager.isHighScore(state.score)) {
-        HighScoreManager.addScore(state.score);
         this.highScoreSaved = true;
+        this.showInitialsEntry(state.score, () => {
+          this.scene.start('MainMenu');
+        });
+      } else {
+        this.scene.start('MainMenu');
       }
-      this.scene.start('MainMenu');
     });
 
     quitButton.on('pointerover', () => {
@@ -581,6 +584,21 @@ export class GameScene extends Phaser.Scene {
     } else if (state.status === 'playing') {
       this.gameController.pause();
     }
+  }
+
+  /**
+   * Shows the initials entry dialog for high scores
+   */
+  private showInitialsEntry(score: number, onDismiss?: () => void): void {
+    this.scene.launch('InitialsEntry', {
+      score,
+      onComplete: (initials: string) => {
+        HighScoreManager.addScore(score, initials);
+        if (onDismiss) {
+          onDismiss();
+        }
+      },
+    });
   }
 
   /**

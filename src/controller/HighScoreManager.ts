@@ -4,6 +4,7 @@
 export interface HighScoreEntry {
   score: number;
   timestamp: number;
+  initials: string;
 }
 
 const HIGH_SCORE_KEY = '7signal-blocks-high-scores';
@@ -33,13 +34,20 @@ export class HighScoreManager {
   /**
    * Add a new score to the high score list
    * @param score - The score to add
+   * @param initials - The player's initials (3 characters)
    * @returns The position in the high score list (1-based), or -1 if not a high score
    */
-  static addScore(score: number): number {
+  static addScore(score: number, initials: string = 'AAA'): number {
+    // Don't save zero scores
+    if (score === 0) {
+      return -1;
+    }
+
     const scores = this.getHighScores();
     const newEntry: HighScoreEntry = {
       score,
       timestamp: Date.now(),
+      initials: initials.toUpperCase().slice(0, 3).padEnd(3, 'A'),
     };
 
     // Add new score
@@ -65,6 +73,11 @@ export class HighScoreManager {
    * @returns true if the score would make it into the high score list
    */
   static isHighScore(score: number): boolean {
+    // Zero scores don't qualify
+    if (score === 0) {
+      return false;
+    }
+
     const scores = this.getHighScores();
 
     // If we have fewer than max scores, any score qualifies
