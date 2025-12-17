@@ -17,13 +17,13 @@
 | 13  | Rotation (SRS)         | X      |
 | 14  | Line Clear             | X      |
 | 15  | Scoring & Levels       | X      |
-| 16  | Colors & Rendering     |        |
+| 16  | Colors & Rendering     | X      |
 | 17  | Next Queue             | X      |
 | 18  | Hold Piece             |        |
 | 19  | Ghost Piece            |        |
 | 20  | Top-Out Rules          | X      |
 | 21  | Mobile Controls        |        |
-| 22  | Logo & Branding        | IP     |
+| 22  | Logo & Branding        | X      |
 | 23  | Responsive Layout      |        |
 | 24  | Docs & README          |        |
 | 25  | Type-Check Strict      |        |
