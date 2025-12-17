@@ -229,7 +229,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * Renders a single cell with the appropriate color
+   * Renders a single cell with the appropriate color and gradient effect
    */
   private renderCell(row: number, col: number, type: TetrominoType): void {
     const graphics = this.cellGraphics[row][col];
@@ -241,9 +241,29 @@ export class GameScene extends Phaser.Scene {
 
     graphics.clear();
 
-    // Draw filled cell
+    // Draw main cell body with base color
     graphics.fillStyle(color, 1);
     graphics.fillRect(x, y, CELL_SIZE, CELL_SIZE);
+
+    // Add highlight on top edge for 3D effect (lighter)
+    const highlightHeight = CELL_SIZE * 0.25;
+    graphics.fillStyle(0xffffff, 0.3);
+    graphics.fillRect(x, y, CELL_SIZE, highlightHeight);
+
+    // Add shadow on bottom edge for depth (darker)
+    const shadowHeight = CELL_SIZE * 0.25;
+    graphics.fillStyle(0x000000, 0.3);
+    graphics.fillRect(x, y + CELL_SIZE - shadowHeight, CELL_SIZE, shadowHeight);
+
+    // Add subtle inner highlight for polish
+    const innerHighlightSize = 2;
+    graphics.fillStyle(0xffffff, 0.2);
+    graphics.fillRect(
+      x + innerHighlightSize,
+      y + innerHighlightSize,
+      CELL_SIZE - innerHighlightSize * 2,
+      innerHighlightSize
+    );
 
     // Draw border
     graphics.lineStyle(GRID_LINE_WIDTH, GRID_LINE_COLOR, 1);
