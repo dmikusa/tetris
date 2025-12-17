@@ -32,6 +32,8 @@ export class GameScene extends Phaser.Scene {
   private levelText?: Phaser.GameObjects.Text;
   private linesText?: Phaser.GameObjects.Text;
   private nextQueueContainer?: Phaser.GameObjects.Container;
+  private pauseOverlay?: Phaser.GameObjects.Container;
+  private pauseBackground?: Phaser.GameObjects.Image;
   private readonly NEXT_PREVIEW_COUNT = 1;
   private readonly NEXT_CELL_SIZE = 20; // Smaller cells for preview
 
@@ -72,6 +74,7 @@ export class GameScene extends Phaser.Scene {
       onHardDrop: () => this.gameController.hardDrop(),
       onRotateClockwise: () => this.gameController.rotateClockwise(),
       onRotateCounterclockwise: () => this.gameController.rotateCounterclockwise(),
+      onPause: () => this.togglePause(),
     });
 
     // Start input handling
@@ -88,6 +91,9 @@ export class GameScene extends Phaser.Scene {
 
     // Create game over overlay (initially hidden)
     this.createGameOverOverlay();
+
+    // Create pause overlay (initially hidden)
+    this.createPauseOverlay();
   }
 
   /**
@@ -129,6 +135,26 @@ export class GameScene extends Phaser.Scene {
   update(): void {
     // Get current game state
     const state = this.gameController.getState();
+
+    // Update pause overlay visibility
+    const isPaused = state.status === 'paused';
+    if (this.pauseOverlay) {
+      this.pauseOverlay.setVisible(isPaused);
+    }
+    if (this.playfieldContainer) {
+      this.playfieldContainer.setVisible(!isPaused);
+    }
+
+    // Hide game info and next queue when paused
+    if (this.scoreText) this.scoreText.setVisible(!isPaused);
+    if (this.levelText) this.levelText.setVisible(!isPaused);
+    if (this.linesText) this.linesText.setVisible(!isPaused);
+    if (this.nextQueueContainer) this.nextQueueContainer.setVisible(!isPaused);
+
+    // Only render and update when not paused
+    if (isPaused) {
+      return;
+    }
 
     // Render the playfield
     this.renderState(state);
@@ -459,6 +485,60 @@ export class GameScene extends Phaser.Scene {
         this.gameController.startGame();
       }
     });
+  }
+
+  /**
+   * Creates the pause overlay with background and text
+   */
+  private createPauseOverlay(): void {
+    const centerX = this.cameras.main.width / 2;
+    const centerY = this.cameras.main.height / 2;
+
+    // Create container for all pause elements
+    this.pauseOverlay = this.add.container(0, 0);
+    this.pauseOverlay.setDepth(999); // Just below game over overlay
+    this.pauseOverlay.setVisible(false); // Hidden by default
+
+    // Use the menu background image
+    this.pauseBackground = this.add.image(512, 384, 'menu-background');
+    this.pauseBackground.setDisplaySize(1024, 768);
+    this.pauseOverlay.add(this.pauseBackground);
+
+    // Paused text
+    const pausedText = this.add.text(centerX, centerY - 50, 'PAUSED', {
+      fontFamily: '"Press Start 2P"',
+      fontSize: '38px',
+      color: '#1FA4E8',
+    });
+    pausedText.setOrigin(0.5);
+    this.pauseOverlay.add(pausedText);
+
+    // Resume instructions
+    const resumeText = this.add.text(centerX, centerY + 50, 'Press ESC to resume', {
+      fontFamily: '"Press Start 2P"',
+      fontSize: '20px',
+      color: '#ffffff',
+    });
+    resumeText.setOrigin(0.5);
+    this.pauseOverlay.add(resumeText);
+  }
+
+  /**
+   * Toggles the pause state of the game
+   */
+  private togglePause(): void {
+    const state = this.gameController.getState();
+
+    // Only allow pause/resume when game is playing or paused (not game over)
+    if (state.isGameOver) {
+      return;
+    }
+
+    if (state.status === 'paused') {
+      this.gameController.resume();
+    } else if (state.status === 'playing') {
+      this.gameController.pause();
+    }
   }
 
   /**

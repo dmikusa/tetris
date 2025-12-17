@@ -15,6 +15,7 @@ describe('InputController', () => {
       onHardDrop: vi.fn(),
       onRotateClockwise: vi.fn(),
       onRotateCounterclockwise: vi.fn(),
+      onPause: vi.fn(),
     };
 
     // Create input controller

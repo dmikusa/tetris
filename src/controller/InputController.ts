@@ -9,6 +9,7 @@ export enum KeyCode {
   KeyZ = 'z',
   KeyX = 'x',
   Control = 'Control',
+  Escape = 'Escape',
 }
 
 /**
@@ -54,6 +55,7 @@ export interface InputCallbacks {
   onHardDrop: () => void;
   onRotateClockwise: () => void;
   onRotateCounterclockwise: () => void;
+  onPause: () => void;
 }
 
 /**
@@ -152,7 +154,8 @@ export class InputController {
       key !== KeyCode.ArrowUp &&
       key !== KeyCode.KeyZ &&
       key !== KeyCode.KeyX &&
-      key !== KeyCode.Control
+      key !== KeyCode.Control &&
+      key !== KeyCode.Escape
     ) {
       return;
     }
@@ -165,7 +168,8 @@ export class InputController {
       key === KeyCode.ArrowUp ||
       key === KeyCode.KeyZ ||
       key === KeyCode.KeyX ||
-      key === KeyCode.Control
+      key === KeyCode.Control ||
+      key === KeyCode.Escape
     ) {
       // Prevent browser key repeat for instant actions
       if (event.repeat) {
@@ -293,6 +297,9 @@ export class InputController {
       case KeyCode.KeyX:
       case KeyCode.Control:
         this.callbacks.onRotateClockwise();
+        break;
+      case KeyCode.Escape:
+        this.callbacks.onPause();
         break;
     }
   }
