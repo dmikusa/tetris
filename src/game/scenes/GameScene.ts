@@ -3,6 +3,7 @@ import { FIELD_WIDTH, FIELD_VISIBLE_HEIGHT, FIELD_TOTAL_HEIGHT } from '../../mod
 import { TetrominoType } from '../../model/types';
 import { GameController } from '../../controller/GameController';
 import { InputController } from '../../controller/InputController';
+import { HighScoreManager } from '../../controller/HighScoreManager';
 import { COLORS } from '../../model/colors';
 import { SHAPES } from '../../model/shapes';
 
@@ -34,6 +35,7 @@ export class GameScene extends Phaser.Scene {
   private nextQueueContainer?: Phaser.GameObjects.Container;
   private pauseOverlay?: Phaser.GameObjects.Container;
   private pauseBackground?: Phaser.GameObjects.Image;
+  private highScoreSaved: boolean = false;
   private readonly NEXT_PREVIEW_COUNT = 1;
   private readonly NEXT_CELL_SIZE = 20; // Smaller cells for preview
 
@@ -177,8 +179,14 @@ export class GameScene extends Phaser.Scene {
     if (this.gameOverOverlay) {
       this.gameOverOverlay.setVisible(state.isGameOver);
 
-      // Update stats if game is over
+      // Update stats and handle high score if game is over
       if (state.isGameOver && this.statsText) {
+        // Check and save high score (only once per game over)
+        if (!this.highScoreSaved && HighScoreManager.isHighScore(state.score)) {
+          HighScoreManager.addScore(state.score);
+          this.highScoreSaved = true;
+        }
+
         this.statsText.setText([
           `Score: ${state.score}`,
           `Level: ${state.level}`,
@@ -482,6 +490,7 @@ export class GameScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-SPACE', () => {
       const state = this.gameController.getState();
       if (state.isGameOver) {
+        this.highScoreSaved = false; // Reset flag for new game
         this.gameController.startGame();
       }
     });
@@ -521,6 +530,39 @@ export class GameScene extends Phaser.Scene {
     });
     resumeText.setOrigin(0.5);
     this.pauseOverlay.add(resumeText);
+
+    // Quit to menu button
+    const quitButton = this.add
+      .text(centerX, 650, 'Quit to Menu', {
+        fontFamily: '"Press Start 2P"',
+        fontSize: '18px',
+        color: '#F28C28',
+        stroke: '#000000',
+        strokeThickness: 6,
+        align: 'center',
+      })
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true });
+
+    quitButton.on('pointerdown', () => {
+      // Check and save high score before quitting
+      const state = this.gameController.getState();
+      if (!this.highScoreSaved && HighScoreManager.isHighScore(state.score)) {
+        HighScoreManager.addScore(state.score);
+        this.highScoreSaved = true;
+      }
+      this.scene.start('MainMenu');
+    });
+
+    quitButton.on('pointerover', () => {
+      quitButton.setColor('#B85412');
+    });
+
+    quitButton.on('pointerout', () => {
+      quitButton.setColor('#F28C28');
+    });
+
+    this.pauseOverlay.add(quitButton);
   }
 
   /**

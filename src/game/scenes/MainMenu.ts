@@ -52,6 +52,32 @@ export class MainMenu extends Scene {
       playButton.setColor('#F28C28');
     });
 
+    // Add button to view high scores
+    const highScoresButton = this.add
+      .text(512, 340, 'High Scores', {
+        fontFamily: '"Press Start 2P"',
+        fontSize: 18,
+        color: '#F28C28',
+        stroke: '#000000',
+        strokeThickness: 6,
+        align: 'center',
+      })
+      .setOrigin(0.5)
+      .setDepth(100)
+      .setInteractive({ useHandCursor: true });
+
+    highScoresButton.on('pointerdown', () => {
+      this.scene.start('HighScores');
+    });
+
+    highScoresButton.on('pointerover', () => {
+      highScoresButton.setColor('#B85412');
+    });
+
+    highScoresButton.on('pointerout', () => {
+      highScoresButton.setColor('#F28C28');
+    });
+
     EventBus.emit('current-scene-ready', this);
   }
 }
